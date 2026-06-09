@@ -1,0 +1,21 @@
+{
+  "name": "library-management-api",
+  "version": "1.0.0",
+  "description": "A REST API for managing library books, users and loans.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/NicolauAlfredo/library-management-api.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/NicolauAlfredo/library-management-api/issues"
+  },
+  "homepage": "https://github.com/NicolauAlfredo/library-management-api#readme"
+}
