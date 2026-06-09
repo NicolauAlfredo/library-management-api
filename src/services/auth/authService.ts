@@ -1,5 +1,5 @@
 import bcrypt from "bcryptjs";
-import * as jwt from "jsonwebtoken";
+import jwt, { SignOptions } from "jsonwebtoken";
 import { UserRepository } from "../../repositories/auth/authRepository";
 import { Role } from "../../types/role";
 import { User } from "../../models/auth/authModel";
@@ -76,6 +76,9 @@ export class AuthService {
       throw new Error("JWT_SECRET is not defined");
     }
 
+    const expiresIn = (process.env.JWT_EXPIRES_IN ||
+      "1d") as SignOptions["expiresIn"];
+
     return jwt.sign(
       {
         id: user.id,
@@ -83,7 +86,7 @@ export class AuthService {
       },
       secret,
       {
-        expiresIn: process.env.JWT_EXPIRES_IN || "1d",
+        expiresIn,
       },
     );
   }
