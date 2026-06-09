@@ -4,7 +4,7 @@
   "description": "A REST API for managing library books, users and loans.",
   "main": "index.js",
   "scripts": {
-    "dev": "ts-node-dev --respawn --transpile-only src/server.ts",
+    "dev": "ts-node-dev --respawn --transpile-only server.ts",
     "build": "tsc",
     "start": "node dist/server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -25,7 +25,8 @@
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
-    "helmet": "^8.2.0"
+    "helmet": "^8.2.0",
+    "mysql2": "^3.22.5"
   },
   "devDependencies": {
     "@types/cors": "^2.8.19",
