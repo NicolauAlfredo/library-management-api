@@ -1,3 +1,5 @@
+CREATE DATABASE IF NOT EXISTS library_management_api;
+
 USE library_management_api;
 
 CREATE TABLE users (
