@@ -1,0 +1,83 @@
+import { ResultSetHeader, RowDataPacket } from "mysql2";
+import { db } from "../../config/database";
+import { User } from "../../models/auth/authModel";
+import { Role } from "../../types/role";
+
+interface UserRow extends RowDataPacket {
+  id: number;
+  name: string;
+  email: string;
+  password: string;
+  role: Role;
+  created_at: Date;
+  updated_at: Date;
+}
+
+interface CreateUserData {
+  name: string;
+  email: string;
+  password: string;
+  role?: Role;
+}
+
+export class UserRepository {
+  async findByEmail(email: string): Promise<User | null> {
+    const [rows] = await db.query<UserRow[]>(
+      "SELECT * FROM users WHERE email = ? LIMIT 1",
+      [email],
+    );
+
+    const user = rows[0];
+
+    if (!user) {
+      return null;
+    }
+
+    return this.mapToUser(user);
+  }
+
+  async findById(id: number): Promise<User | null> {
+    const [rows] = await db.query<UserRow[]>(
+      "SELECT * FROM users WHERE id = ? LIMIT 1",
+      [id],
+    );
+
+    const user = rows[0];
+
+    if (!user) {
+      return null;
+    }
+
+    return this.mapToUser(user);
+  }
+
+  async create(data: CreateUserData): Promise<User> {
+    const [result] = await db.query<ResultSetHeader>(
+      `
+      INSERT INTO users (name, email, password, role)
+      VALUES (?, ?, ?, ?)
+      `,
+      [data.name, data.email, data.password, data.role ?? Role.USER],
+    );
+
+    const createdUser = await this.findById(result.insertId);
+
+    if (!createdUser) {
+      throw new Error("User could not be created");
+    }
+
+    return createdUser;
+  }
+
+  private mapToUser(row: UserRow): User {
+    return {
+      id: row.id,
+      name: row.name,
+      email: row.email,
+      password: row.password,
+      role: row.role,
+      createdAt: row.created_at,
+      updatedAt: row.updated_at,
+    };
+  }
+}
