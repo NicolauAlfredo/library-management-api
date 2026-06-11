@@ -137,4 +137,26 @@ export class BookRepository {
       updatedAt: row.updated_at,
     };
   }
+
+  async decreaseAvailableQuantity(bookId: number): Promise<void> {
+    await db.query(
+      `
+    UPDATE books
+    SET available_quantity = available_quantity - 1
+    WHERE id = ? AND available_quantity > 0
+    `,
+      [bookId],
+    );
+  }
+
+  async increaseAvailableQuantity(bookId: number): Promise<void> {
+    await db.query(
+      `
+    UPDATE books
+    SET available_quantity = available_quantity + 1
+    WHERE id = ?
+    `,
+      [bookId],
+    );
+  }
 }
