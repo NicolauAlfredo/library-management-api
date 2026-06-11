@@ -424,5 +424,59 @@ export const swaggerDocument: OpenAPIV3.Document = {
         },
       },
     },
+
+    "/users": {
+      get: {
+        tags: ["Users"],
+        summary: "Get all users",
+        description: "Admin-only endpoint to list all registered users.",
+        security: [{ bearerAuth: [] }],
+        responses: {
+          "200": {
+            description: "Users fetched successfully",
+          },
+          "401": {
+            description: "Unauthorized",
+          },
+          "403": {
+            description: "Admin access required",
+          },
+        },
+      },
+    },
+
+    "/users/{id}": {
+      get: {
+        tags: ["Users"],
+        summary: "Get user by id",
+        description: "Admin-only endpoint to get a specific user.",
+        security: [{ bearerAuth: [] }],
+        parameters: [
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            schema: {
+              type: "integer",
+              example: 1,
+            },
+          },
+        ],
+        responses: {
+          "200": {
+            description: "User fetched successfully",
+          },
+          "401": {
+            description: "Unauthorized",
+          },
+          "403": {
+            description: "Admin access required",
+          },
+          "404": {
+            description: "User not found",
+          },
+        },
+      },
+    },
   },
 };
