@@ -66,19 +66,7 @@ export class LoanRepository {
     `,
     );
 
-    return rows.map((loan) => ({
-      id: loan.id,
-      userId: loan.user_id,
-      userName: loan.user_name,
-      userEmail: loan.user_email,
-      bookId: loan.book_id,
-      bookTitle: loan.book_title,
-      bookAuthor: loan.book_author,
-      loanDate: loan.loan_date,
-      dueDate: loan.due_date,
-      returnedAt: loan.returned_at,
-      status: loan.status,
-    }));
+    return rows.map((loan) => this.mapToLoan(loan));
   }
 
   async findById(id: number): Promise<Loan | null> {
@@ -93,15 +81,7 @@ export class LoanRepository {
       return null;
     }
 
-    return {
-      id: loan.id,
-      userId: loan.user_id,
-      bookId: loan.book_id,
-      loanDate: loan.loan_date,
-      dueDate: loan.due_date,
-      returnedAt: loan.returned_at,
-      status: loan.status,
-    };
+    return this.mapToLoan(loan);
   }
 
   async findByUser(userId: number): Promise<Loan[]> {
@@ -132,5 +112,42 @@ export class LoanRepository {
       `,
       [LoanStatus.RETURNED, id],
     );
+  }
+
+  async findActiveLoanByUserAndBook(
+    userId: number,
+    bookId: number,
+  ): Promise<Loan | null> {
+    const [rows] = await db.query<LoanRow[]>(
+      `
+    SELECT *
+    FROM loans
+    WHERE user_id = ?
+      AND book_id = ?
+      AND status = ?
+    LIMIT 1
+    `,
+      [userId, bookId, LoanStatus.ACTIVE],
+    );
+
+    const loan = rows[0];
+
+    if (!loan) {
+      return null;
+    }
+
+    return this.mapToLoan(loan);
+  }
+
+  private mapToLoan(loan: LoanRow): Loan {
+    return {
+      id: loan.id,
+      userId: loan.user_id,
+      bookId: loan.book_id,
+      loanDate: loan.loan_date,
+      dueDate: loan.due_date,
+      returnedAt: loan.returned_at,
+      status: loan.status,
+    };
   }
 }

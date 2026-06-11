@@ -28,6 +28,15 @@ export class LoanService {
 
     const dueDate = this.calculateDueDate();
 
+    const activeLoan = await this.loanRepository.findActiveLoanByUserAndBook(
+      userId,
+      bookId,
+    );
+
+    if (activeLoan) {
+      throw new Error("You already have an active loan for this book");
+    }
+
     const loanId = await this.loanRepository.create(userId, bookId, dueDate);
 
     await this.bookRepository.decreaseAvailableQuantity(bookId);
