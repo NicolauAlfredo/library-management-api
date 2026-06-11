@@ -137,5 +137,192 @@ export const swaggerDocument: OpenAPIV3.Document = {
         },
       },
     },
+
+    "/books": {
+      get: {
+        tags: ["Books"],
+        summary: "Get all books",
+        security: [{ bearerAuth: [] }],
+        responses: {
+          "200": {
+            description: "Books fetched successfully",
+          },
+          "401": {
+            description: "Unauthorized",
+          },
+        },
+      },
+
+      post: {
+        tags: ["Books"],
+        summary: "Create a new book",
+        security: [{ bearerAuth: [] }],
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                required: ["title", "author", "quantity"],
+                properties: {
+                  title: {
+                    type: "string",
+                    example: "Clean Code",
+                  },
+                  author: {
+                    type: "string",
+                    example: "Robert C. Martin",
+                  },
+                  category: {
+                    type: "string",
+                    example: "Software Engineering",
+                  },
+                  isbn: {
+                    type: "string",
+                    example: "9780132350884",
+                  },
+                  quantity: {
+                    type: "number",
+                    example: 5,
+                  },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          "201": {
+            description: "Book created successfully",
+          },
+          "400": {
+            description: "Invalid book data",
+          },
+          "401": {
+            description: "Unauthorized",
+          },
+          "403": {
+            description: "Admin access required",
+          },
+        },
+      },
+    },
+
+    "/books/{id}": {
+      get: {
+        tags: ["Books"],
+        summary: "Get book by id",
+        security: [{ bearerAuth: [] }],
+        parameters: [
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            schema: {
+              type: "integer",
+              example: 1,
+            },
+          },
+        ],
+        responses: {
+          "200": {
+            description: "Book fetched successfully",
+          },
+          "404": {
+            description: "Book not found",
+          },
+        },
+      },
+
+      put: {
+        tags: ["Books"],
+        summary: "Update book by id",
+        security: [{ bearerAuth: [] }],
+        parameters: [
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            schema: {
+              type: "integer",
+              example: 1,
+            },
+          },
+        ],
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  title: {
+                    type: "string",
+                    example: "Clean Code - Updated Edition",
+                  },
+                  author: {
+                    type: "string",
+                    example: "Robert C. Martin",
+                  },
+                  category: {
+                    type: "string",
+                    example: "Software Engineering",
+                  },
+                  isbn: {
+                    type: "string",
+                    example: "9780132350884",
+                  },
+                  quantity: {
+                    type: "number",
+                    example: 10,
+                  },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          "200": {
+            description: "Book updated successfully",
+          },
+          "400": {
+            description: "Invalid book data",
+          },
+          "403": {
+            description: "Admin access required",
+          },
+          "404": {
+            description: "Book not found",
+          },
+        },
+      },
+
+      delete: {
+        tags: ["Books"],
+        summary: "Delete book by id",
+        security: [{ bearerAuth: [] }],
+        parameters: [
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            schema: {
+              type: "integer",
+              example: 1,
+            },
+          },
+        ],
+        responses: {
+          "200": {
+            description: "Book deleted successfully",
+          },
+          "403": {
+            description: "Admin access required",
+          },
+          "404": {
+            description: "Book not found",
+          },
+        },
+      },
+    },
   },
 };
