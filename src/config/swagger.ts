@@ -32,5 +32,110 @@ export const swaggerDocument: OpenAPIV3.Document = {
       description: "User management endpoints",
     },
   ],
-  paths: {},
+  components: {
+    securitySchemes: {
+      bearerAuth: {
+        type: "http",
+        scheme: "bearer",
+        bearerFormat: "JWT",
+      },
+    },
+  },
+  paths: {
+    "/auth/register": {
+      post: {
+        tags: ["Auth"],
+        summary: "Register a new user",
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                required: ["name", "email", "password"],
+                properties: {
+                  name: {
+                    type: "string",
+                    example: "João Silva",
+                  },
+                  email: {
+                    type: "string",
+                    example: "joao.silva@example.com",
+                  },
+                  password: {
+                    type: "string",
+                    example: "Password123!",
+                  },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          "201": {
+            description: "User registered successfully",
+          },
+          "400": {
+            description: "Invalid data or user already exists",
+          },
+        },
+      },
+    },
+
+    "/auth/login": {
+      post: {
+        tags: ["Auth"],
+        summary: "Login user",
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                required: ["email", "password"],
+                properties: {
+                  email: {
+                    type: "string",
+                    example: "joao.silva@example.com",
+                  },
+                  password: {
+                    type: "string",
+                    example: "Password123!",
+                  },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          "200": {
+            description: "Login successful",
+          },
+          "401": {
+            description: "Invalid email or password",
+          },
+        },
+      },
+    },
+
+    "/auth/profile": {
+      get: {
+        tags: ["Auth"],
+        summary: "Get authenticated user profile",
+        security: [
+          {
+            bearerAuth: [],
+          },
+        ],
+        responses: {
+          "200": {
+            description: "Authenticated user profile",
+          },
+          "401": {
+            description: "Unauthorized",
+          },
+        },
+      },
+    },
+  },
 };
