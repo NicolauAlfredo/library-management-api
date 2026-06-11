@@ -95,4 +95,16 @@ export class AuthService {
     const { password, ...userWithoutPassword } = user;
     return userWithoutPassword;
   }
+
+  async getProfile(userId: number) {
+    const user = await this.userRepository.findById(userId);
+
+    if (!user) {
+      throw new Error("User not found");
+    }
+
+    const { password, ...userWithoutPassword } = user;
+
+    return userWithoutPassword;
+  }
 }

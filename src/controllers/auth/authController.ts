@@ -38,9 +38,29 @@ export class AuthController {
   }
 
   async profile(req: AuthenticatedRequest, res: Response): Promise<void> {
-    res.status(200).json({
-      success: true,
-      user: req.user,
-    });
+    try {
+      const userId = req.user?.id;
+
+      if (!userId) {
+        res.status(401).json({
+          success: false,
+          message: "Authentication required",
+        });
+
+        return;
+      }
+
+      const profile = await this.authService.getProfile(userId);
+
+      res.status(200).json({
+        success: true,
+        data: profile,
+      });
+    } catch (error) {
+      res.status(404).json({
+        success: false,
+        message: error instanceof Error ? error.message : "User not found",
+      });
+    }
   }
 }
