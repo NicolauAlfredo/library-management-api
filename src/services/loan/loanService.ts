@@ -68,6 +68,10 @@ export class LoanService {
     return updatedLoan;
   }
 
+  async findAll(): Promise<Loan[]> {
+    return this.loanRepository.findAll();
+  }
+
   async findMyLoans(userId: number): Promise<Loan[]> {
     return this.loanRepository.findByUser(userId);
   }

@@ -14,6 +14,23 @@ interface BorrowParams {
 export class LoanController {
   private loanService = new LoanService();
 
+  async findAll(req: AuthenticatedRequest, res: Response): Promise<void> {
+    try {
+      const loans = await this.loanService.findAll();
+
+      res.status(200).json({
+        success: true,
+        data: loans,
+      });
+    } catch (error) {
+      res.status(500).json({
+        success: false,
+        message:
+          error instanceof Error ? error.message : "Failed to fetch loans",
+      });
+    }
+  }
+
   async borrowBook(
     req: AuthenticatedRequest<BorrowParams>,
     res: Response,

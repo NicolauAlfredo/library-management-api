@@ -30,6 +30,22 @@ export class LoanRepository {
     return result.insertId;
   }
 
+  async findAll(): Promise<Loan[]> {
+    const [rows] = await db.query<LoanRow[]>(
+      "SELECT * FROM loans ORDER BY loan_date DESC",
+    );
+
+    return rows.map((loan) => ({
+      id: loan.id,
+      userId: loan.user_id,
+      bookId: loan.book_id,
+      loanDate: loan.loan_date,
+      dueDate: loan.due_date,
+      returnedAt: loan.returned_at,
+      status: loan.status,
+    }));
+  }
+
   async findById(id: number): Promise<Loan | null> {
     const [rows] = await db.query<LoanRow[]>(
       "SELECT * FROM loans WHERE id = ?",
