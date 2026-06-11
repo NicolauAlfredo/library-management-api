@@ -3,6 +3,7 @@ import cors from "cors";
 import helmet from "helmet";
 import authRoutes from "./routes/auth/authRoutes";
 import bookRoutes from "./routes/book/bookRoutes";
+import loanRoutes from "./routes/loan/loanRoutes";
 
 const app = express();
 
@@ -15,6 +16,9 @@ app.use("/auth", authRoutes);
 
 // Book Route
 app.use("/books", bookRoutes);
+
+// Loan
+app.use("/loans", loanRoutes);
 
 // Home Route
 app.get("/", (req, res) => {

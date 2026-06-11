@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { AuthService } from "../../services/auth/authService";
-import { AuthenticatedRequest } from "../../types/authenticated-request";
+import { AuthenticatedRequest } from "../../types/authenticatedRequest";
 
 export class AuthController {
   private authService = new AuthService();

@@ -1,5 +1,5 @@
 import { NextFunction, Response } from "express";
-import { AuthenticatedRequest } from "../../types/authenticated-request";
+import { AuthenticatedRequest } from "../../types/authenticatedRequest";
 import { Role } from "../../types/role";
 
 export function authorize(...allowedRoles: Role[]) {
