@@ -33,11 +33,74 @@ interface UpdateBookData {
   quantity?: number;
 }
 
-export class BookRepository {
-  async findAll(): Promise<Book[]> {
-    const [rows] = await db.query<BookRow[]>("SELECT * FROM books");
+interface FindAllBooksParams {
+  page: number;
+  limit: number;
+  search?: string;
+  category?: string;
+  available?: boolean;
+}
 
-    return rows.map(this.mapToBook);
+interface FindAllBooksResult {
+  books: Book[];
+  total: number;
+}
+
+export class BookRepository {
+  async findAll(params: FindAllBooksParams): Promise<FindAllBooksResult> {
+    const { page, limit, search, category, available } = params;
+
+    const offset = (page - 1) * limit;
+
+    const conditions: string[] = [];
+    const values: unknown[] = [];
+
+    if (search) {
+      conditions.push("(title LIKE ? OR author LIKE ? OR isbn LIKE ?)");
+
+      const searchValue = `%${search}%`;
+
+      values.push(searchValue, searchValue, searchValue);
+    }
+
+    if (category) {
+      conditions.push("category = ?");
+      values.push(category);
+    }
+
+    if (available !== undefined) {
+      conditions.push(
+        available ? "available_quantity > 0" : "available_quantity = 0",
+      );
+    }
+
+    const whereClause =
+      conditions.length > 0 ? `WHERE ${conditions.join(" AND ")}` : "";
+
+    const [rows] = await db.query<BookRow[]>(
+      `
+    SELECT *
+    FROM books
+    ${whereClause}
+    ORDER BY created_at DESC
+    LIMIT ? OFFSET ?
+    `,
+      [...values, limit, offset],
+    );
+
+    const [countRows] = await db.query<RowDataPacket[]>(
+      `
+    SELECT COUNT(*) AS total
+    FROM books
+    ${whereClause}
+    `,
+      values,
+    );
+
+    return {
+      books: rows.map((book) => this.mapToBook(book)),
+      total: countRows[0].total,
+    };
   }
 
   async findById(id: number): Promise<Book | null> {

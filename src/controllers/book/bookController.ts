@@ -29,11 +29,34 @@ export class BookController {
 
   async findAll(req: Request, res: Response): Promise<void> {
     try {
-      const books = await this.bookService.findAll();
+      const page = Number(req.query.page);
+      const limit = Number(req.query.limit);
+
+      const search =
+        typeof req.query.search === "string" ? req.query.search : undefined;
+
+      const category =
+        typeof req.query.category === "string" ? req.query.category : undefined;
+
+      const available =
+        req.query.available === "true"
+          ? true
+          : req.query.available === "false"
+            ? false
+            : undefined;
+
+      const result = await this.bookService.findAll({
+        page,
+        limit,
+        search,
+        category,
+        available,
+      });
 
       res.status(200).json({
         success: true,
-        data: books,
+        data: result.books,
+        pagination: result.pagination,
       });
     } catch (error) {
       res.status(500).json({

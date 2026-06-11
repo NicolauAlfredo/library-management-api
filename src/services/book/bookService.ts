@@ -19,11 +19,52 @@ interface UpdateBookData {
   quantity?: number;
 }
 
+interface FindAllBooksParams {
+  page?: number;
+  limit?: number;
+  search?: string;
+  category?: string;
+  available?: boolean;
+}
+
+interface PaginatedBooksResult {
+  books: Book[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
+}
+
 export class BookService {
   private bookRepository = new BookRepository();
 
-  async findAll(): Promise<Book[]> {
-    return this.bookRepository.findAll();
+  async findAll(params: FindAllBooksParams): Promise<PaginatedBooksResult> {
+    const page = params.page && params.page > 0 ? params.page : 1;
+
+    const limit =
+      params.limit && params.limit > 0 && params.limit <= 100
+        ? params.limit
+        : 10;
+
+    const { books, total } = await this.bookRepository.findAll({
+      page,
+      limit,
+      search: params.search,
+      category: params.category,
+      available: params.available,
+    });
+
+    return {
+      books,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit),
+      },
+    };
   }
 
   async findById(id: number): Promise<Book> {
