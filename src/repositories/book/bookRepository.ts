@@ -1,6 +1,6 @@
 import { ResultSetHeader, RowDataPacket } from "mysql2";
 import { db } from "../../config/database";
-import { Book } from "../../models/book/bookMode";
+import { Book } from "../../models/book/bookModel";
 
 interface BookRow extends RowDataPacket {
   id: number;
