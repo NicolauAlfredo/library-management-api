@@ -2,10 +2,15 @@ import { Request, Response } from "express";
 import { BookService } from "../../services/book/bookService";
 import { parseId } from "../../utils/parseId";
 
+interface BookParams {
+  id: string;
+}
+
 interface CreateBookBody {
   title: string;
   author: string;
   category?: string;
+  coverUrl?: string;
   isbn?: string;
   quantity: number;
 }
@@ -14,6 +19,7 @@ interface UpdateBookBody {
   title?: string;
   author?: string;
   category?: string;
+  coverUrl?: string;
   isbn?: string;
   quantity?: number;
 }
@@ -38,7 +44,7 @@ export class BookController {
     }
   }
 
-  async findById(req: Request, res: Response): Promise<void> {
+  async findById(req: Request<BookParams>, res: Response): Promise<void> {
     try {
       const id = parseId(req.params.id);
       const book = await this.bookService.findById(id);
@@ -75,7 +81,10 @@ export class BookController {
     }
   }
 
-  async update(req: Request, res: Response): Promise<void> {
+  async update(
+    req: Request<BookParams, {}, UpdateBookBody>,
+    res: Response,
+  ): Promise<void> {
     try {
       const id = parseId(req.params.id);
 
@@ -94,7 +103,7 @@ export class BookController {
     }
   }
 
-  async delete(req: Request, res: Response): Promise<void> {
+  async delete(req: Request<BookParams>, res: Response): Promise<void> {
     try {
       const id = parseId(req.params.id);
 

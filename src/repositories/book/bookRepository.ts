@@ -8,6 +8,7 @@ interface BookRow extends RowDataPacket {
   author: string;
   category: string | null;
   isbn: string | null;
+  cover_url: string | null;
   quantity: number;
   available_quantity: number;
   created_at: Date;
@@ -19,6 +20,7 @@ interface CreateBookData {
   author: string;
   category?: string;
   isbn?: string;
+  coverUrl?: string;
   quantity: number;
 }
 
@@ -27,6 +29,7 @@ interface UpdateBookData {
   author?: string;
   category?: string;
   isbn?: string;
+  coverUrl?: string;
   quantity?: number;
 }
 
@@ -55,14 +58,15 @@ export class BookRepository {
   async create(data: CreateBookData): Promise<Book> {
     const [result] = await db.query<ResultSetHeader>(
       `
-      INSERT INTO books (title, author, category, isbn, quantity, available_quantity)
-      VALUES (?, ?, ?, ?, ?, ?)
+      INSERT INTO books (title, author, category, isbn, cover_url, quantity, available_quantity)
+      VALUES (?, ?, ?, ?, ?, ?, ?)
       `,
       [
         data.title,
         data.author,
         data.category ?? null,
         data.isbn ?? null,
+        data.coverUrl ?? null,
         data.quantity,
         data.quantity,
       ],
@@ -98,7 +102,7 @@ export class BookRepository {
     await db.query(
       `
       UPDATE books
-      SET title = ?, author = ?, category = ?, isbn = ?, quantity = ?, available_quantity = ?
+      SET title = ?, author = ?, category = ?, isbn = ?, cover_url = ?, quantity = ?, available_quantity = ?
       WHERE id = ?
       `,
       [
@@ -106,6 +110,7 @@ export class BookRepository {
         data.author ?? currentBook.author,
         data.category ?? currentBook.category,
         data.isbn ?? currentBook.isbn,
+        data.coverUrl ?? currentBook.coverUrl,
         quantity,
         availableQuantity,
         id,
@@ -122,20 +127,6 @@ export class BookRepository {
     );
 
     return result.affectedRows > 0;
-  }
-
-  private mapToBook(row: BookRow): Book {
-    return {
-      id: row.id,
-      title: row.title,
-      author: row.author,
-      category: row.category,
-      isbn: row.isbn,
-      quantity: row.quantity,
-      availableQuantity: row.available_quantity,
-      createdAt: row.created_at,
-      updatedAt: row.updated_at,
-    };
   }
 
   async decreaseAvailableQuantity(bookId: number): Promise<void> {
@@ -158,5 +149,20 @@ export class BookRepository {
     `,
       [bookId],
     );
+  }
+
+  private mapToBook(row: BookRow): Book {
+    return {
+      id: row.id,
+      title: row.title,
+      author: row.author,
+      category: row.category,
+      isbn: row.isbn,
+      coverUrl: row.cover_url,
+      quantity: row.quantity,
+      availableQuantity: row.available_quantity,
+      createdAt: row.created_at,
+      updatedAt: row.updated_at,
+    };
   }
 }

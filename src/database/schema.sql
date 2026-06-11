@@ -18,6 +18,7 @@ CREATE TABLE books (
     author VARCHAR(255) NOT NULL,
     category VARCHAR(100),
     isbn VARCHAR(50) UNIQUE,
+    cover_url VARCHAR(500) NULL,
     quantity INT NOT NULL DEFAULT 1,
     available_quantity INT NOT NULL DEFAULT 1,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,

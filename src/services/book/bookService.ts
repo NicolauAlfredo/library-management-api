@@ -6,6 +6,7 @@ interface CreateBookData {
   author: string;
   category?: string;
   isbn?: string;
+  coverUrl?: string;
   quantity: number;
 }
 
@@ -14,6 +15,7 @@ interface UpdateBookData {
   author?: string;
   category?: string;
   isbn?: string;
+  coverUrl?: string;
   quantity?: number;
 }
 
@@ -69,6 +71,10 @@ export class BookService {
 
     if (!Number.isInteger(data.quantity) || data.quantity < 1) {
       throw new Error("Book quantity must be greater than zero");
+    }
+
+    if (data.coverUrl !== undefined && !data.coverUrl.startsWith("http")) {
+      throw new Error("Book cover URL must be valid");
     }
   }
 }
