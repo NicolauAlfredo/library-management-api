@@ -22,4 +22,18 @@ userRoutes.get(
   userController.findById.bind(userController),
 );
 
+userRoutes.put(
+  "/:id",
+  authenticate,
+  authorize(Role.ADMIN),
+  userController.update.bind(userController),
+);
+
+userRoutes.delete(
+  "/:id",
+  authenticate,
+  authorize(Role.ADMIN),
+  userController.delete.bind(userController),
+);
+
 export default userRoutes;

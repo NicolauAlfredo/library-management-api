@@ -1,5 +1,12 @@
 import { User } from "../../models/user/userModel";
 import { UserRepository } from "../../repositories/user/userRepository";
+import { Role } from "../../types/role";
+
+interface UpdateUserData {
+  name?: string;
+  email?: string;
+  role?: Role;
+}
 
 type PublicUser = Omit<User, "password">;
 
@@ -22,5 +29,45 @@ export class UserService {
     const { password, ...userWithoutPassword } = user;
 
     return userWithoutPassword;
+  }
+
+  async update(id: number, data: UpdateUserData): Promise<PublicUser> {
+    if (data.name !== undefined && data.name.trim().length < 2) {
+      throw new Error("User name must have at least 2 characters");
+    }
+
+    if (data.email !== undefined && !data.email.includes("@")) {
+      throw new Error("Invalid email");
+    }
+
+    if (
+      data.role !== undefined &&
+      data.role !== Role.ADMIN &&
+      data.role !== Role.USER
+    ) {
+      throw new Error("Invalid role");
+    }
+
+    const updatedUser = await this.userRepository.update(id, data);
+
+    if (!updatedUser) {
+      throw new Error("User not found");
+    }
+
+    const { password, ...userWithoutPassword } = updatedUser;
+
+    return userWithoutPassword;
+  }
+
+  async delete(id: number, authenticatedUserId: number): Promise<void> {
+    if (id === authenticatedUserId) {
+      throw new Error("You cannot delete your own account");
+    }
+
+    const deleted = await this.userRepository.delete(id);
+
+    if (!deleted) {
+      throw new Error("User not found");
+    }
   }
 }

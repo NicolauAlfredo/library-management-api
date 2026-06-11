@@ -20,6 +20,12 @@ interface CreateUserData {
   role?: Role;
 }
 
+interface UpdateUserData {
+  name?: string;
+  email?: string;
+  role?: Role;
+}
+
 export class UserRepository {
   async findAll(): Promise<User[]> {
     const [rows] = await db.query<UserRow[]>(
@@ -75,6 +81,39 @@ export class UserRepository {
     }
 
     return createdUser;
+  }
+
+  async update(id: number, data: UpdateUserData): Promise<User | null> {
+    const currentUser = await this.findById(id);
+
+    if (!currentUser) {
+      return null;
+    }
+
+    await db.query(
+      `
+    UPDATE users
+    SET name = ?, email = ?, role = ?
+    WHERE id = ?
+    `,
+      [
+        data.name ?? currentUser.name,
+        data.email ?? currentUser.email,
+        data.role ?? currentUser.role,
+        id,
+      ],
+    );
+
+    return this.findById(id);
+  }
+
+  async delete(id: number): Promise<boolean> {
+    const [result] = await db.query<ResultSetHeader>(
+      "DELETE FROM users WHERE id = ?",
+      [id],
+    );
+
+    return result.affectedRows > 0;
   }
 
   private mapToUser(row: UserRow): User {
