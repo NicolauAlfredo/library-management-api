@@ -324,5 +324,105 @@ export const swaggerDocument: OpenAPIV3.Document = {
         },
       },
     },
+
+    "/loans": {
+      get: {
+        tags: ["Loans"],
+        summary: "Get all loans",
+        description: "Admin-only endpoint to list all loans.",
+        security: [{ bearerAuth: [] }],
+        responses: {
+          "200": {
+            description: "Loans fetched successfully",
+          },
+          "401": {
+            description: "Unauthorized",
+          },
+          "403": {
+            description: "Admin access required",
+          },
+        },
+      },
+    },
+
+    "/loans/my": {
+      get: {
+        tags: ["Loans"],
+        summary: "Get authenticated user's loans",
+        security: [{ bearerAuth: [] }],
+        responses: {
+          "200": {
+            description: "User loans fetched successfully",
+          },
+          "401": {
+            description: "Unauthorized",
+          },
+        },
+      },
+    },
+
+    "/loans/borrow/{bookId}": {
+      post: {
+        tags: ["Loans"],
+        summary: "Borrow a book",
+        security: [{ bearerAuth: [] }],
+        parameters: [
+          {
+            name: "bookId",
+            in: "path",
+            required: true,
+            schema: {
+              type: "integer",
+              example: 1,
+            },
+          },
+        ],
+        responses: {
+          "201": {
+            description: "Book borrowed successfully",
+          },
+          "400": {
+            description:
+              "Book unavailable, duplicate active loan or invalid data",
+          },
+          "401": {
+            description: "Unauthorized",
+          },
+        },
+      },
+    },
+
+    "/loans/{id}/return": {
+      patch: {
+        tags: ["Loans"],
+        summary: "Return a borrowed book",
+        security: [{ bearerAuth: [] }],
+        parameters: [
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            schema: {
+              type: "integer",
+              example: 1,
+            },
+          },
+        ],
+        responses: {
+          "200": {
+            description: "Book returned successfully",
+          },
+          "400": {
+            description: "Loan already returned or invalid operation",
+          },
+          "401": {
+            description: "Unauthorized",
+          },
+          "404": {
+            description: "Loan not found",
+          },
+        },
+      },
+    },
   },
 };
