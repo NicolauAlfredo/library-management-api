@@ -1,5 +1,10 @@
 import { Request, Response } from "express";
 import { BookService } from "../../services/book/bookService";
+import { parseId } from "../../utils/parseId";
+
+interface BookParams {
+  id: string;
+}
 
 export class BookController {
   private bookService = new BookService();
@@ -21,9 +26,9 @@ export class BookController {
     }
   }
 
-  async findById(req: Request, res: Response): Promise<void> {
+  async findById(req: Request<BookParams>, res: Response): Promise<void> {
     try {
-      const id = Number(req.params.id);
+      const id = parseId(req.params.id);
       const book = await this.bookService.findById(id);
 
       res.status(200).json({
@@ -55,9 +60,10 @@ export class BookController {
     }
   }
 
-  async update(req: Request, res: Response): Promise<void> {
+  async update(req: Request<BookParams>, res: Response): Promise<void> {
     try {
-      const id = Number(req.params.id);
+      const id = parseId(req.params.id);
+
       const book = await this.bookService.update(id, req.body);
 
       res.status(200).json({
@@ -73,9 +79,9 @@ export class BookController {
     }
   }
 
-  async delete(req: Request, res: Response): Promise<void> {
+  async delete(req: Request<BookParams>, res: Response): Promise<void> {
     try {
-      const id = Number(req.params.id);
+      const id = parseId(req.params.id);
 
       await this.bookService.delete(id);
 
