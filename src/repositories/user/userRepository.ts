@@ -1,6 +1,6 @@
 import { ResultSetHeader, RowDataPacket } from "mysql2";
 import { db } from "../../config/database";
-import { User } from "../../models/auth/authModel";
+import { User } from "../../models/user/userModel";
 import { Role } from "../../types/role";
 
 interface UserRow extends RowDataPacket {
@@ -21,6 +21,14 @@ interface CreateUserData {
 }
 
 export class UserRepository {
+  async findAll(): Promise<User[]> {
+    const [rows] = await db.query<UserRow[]>(
+      "SELECT * FROM users ORDER BY created_at DESC",
+    );
+
+    return rows.map((user) => this.mapToUser(user));
+  }
+
   async findByEmail(email: string): Promise<User | null> {
     const [rows] = await db.query<UserRow[]>(
       "SELECT * FROM users WHERE email = ? LIMIT 1",

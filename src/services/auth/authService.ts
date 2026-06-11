@@ -2,7 +2,7 @@ import bcrypt from "bcryptjs";
 import jwt, { SignOptions } from "jsonwebtoken";
 import { UserRepository } from "../../repositories/user/userRepository";
 import { Role } from "../../types/role";
-import { User } from "../../models/auth/authModel";
+import { User } from "../../models/user/userModel";
 
 interface RegisterUserData {
   name: string;

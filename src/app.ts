@@ -4,6 +4,7 @@ import helmet from "helmet";
 import authRoutes from "./routes/auth/authRoutes";
 import bookRoutes from "./routes/book/bookRoutes";
 import loanRoutes from "./routes/loan/loanRoutes";
+import userRoutes from "./routes/user/userRoutes";
 
 const app = express();
 
@@ -19,6 +20,9 @@ app.use("/books", bookRoutes);
 
 // Loan
 app.use("/loans", loanRoutes);
+
+// User
+app.use("/users", userRoutes);
 
 // Home Route
 app.get("/", (req, res) => {
