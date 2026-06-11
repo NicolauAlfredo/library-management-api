@@ -1,6 +1,8 @@
 import { Router } from "express";
 import { AuthController } from "../../controllers/auth/authController";
 import { authenticate } from "../../middlewares/auth/authMiddleware";
+import { authorize } from "../../middlewares/role/roleMiddleware";
+import { Role } from "../../types/role";
 
 const authRoutes = Router();
 
@@ -15,5 +17,12 @@ authRoutes.get(
   authenticate,
   authController.profile.bind(authController),
 );
+
+authRoutes.get("/admin", authenticate, authorize(Role.ADMIN), (req, res) => {
+  res.json({
+    success: true,
+    message: "Admin area",
+  });
+});
 
 export default authRoutes;
