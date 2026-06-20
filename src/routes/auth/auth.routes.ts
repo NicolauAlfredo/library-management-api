@@ -23,13 +23,13 @@ authRoutes.post(
 
 authRoutes.post(
   "/login",
+  validate(loginSchema, "body"),
   asyncHandler(authController.login.bind(authController)),
 );
 
 authRoutes.get(
   "/profile",
   authenticate,
-  validate(loginSchema, "body"),
   asyncHandler(authController.profile.bind(authController)),
 );
 
