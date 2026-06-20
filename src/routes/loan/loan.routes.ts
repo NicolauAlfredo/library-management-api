@@ -32,6 +32,13 @@ loanRoutes.post(
 );
 
 loanRoutes.patch(
+  "/update-overdue",
+  authenticate,
+  authorize(Role.ADMIN),
+  asyncHandler(loanController.updateOverdueLoans.bind(loanController)),
+);
+
+loanRoutes.patch(
   "/:id/return",
   authenticate,
   validate(loanParamsSchema, "params"),

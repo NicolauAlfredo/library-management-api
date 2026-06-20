@@ -88,6 +88,8 @@ export class LoanService {
   }
 
   async findAll(params: FindAllLoansParams) {
+    await this.loanRepository.updateOverdueLoans();
+
     const page = params.page && params.page > 0 ? params.page : 1;
 
     const limit =
@@ -116,6 +118,8 @@ export class LoanService {
   }
 
   async findMyLoans(userId: number): Promise<Loan[]> {
+    await this.loanRepository.updateOverdueLoans();
+
     return this.loanRepository.findByUser(userId);
   }
 
@@ -124,5 +128,13 @@ export class LoanService {
     dueDate.setDate(dueDate.getDate() + 14);
 
     return dueDate;
+  }
+
+  async updateOverdueLoans(): Promise<{ updatedLoans: number }> {
+    const updatedLoans = await this.loanRepository.updateOverdueLoans();
+
+    return {
+      updatedLoans,
+    };
   }
 }

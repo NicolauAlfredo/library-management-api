@@ -220,6 +220,21 @@ export class LoanRepository {
     return this.mapToLoan(loan);
   }
 
+  async updateOverdueLoans(): Promise<number> {
+    const [result] = await db.query<ResultSetHeader>(
+      `
+    UPDATE loans
+    SET status = ?
+    WHERE status = ?
+      AND due_date < NOW()
+      AND returned_at IS NULL
+    `,
+      [LoanStatus.LATE, LoanStatus.ACTIVE],
+    );
+
+    return result.affectedRows;
+  }
+
   private mapToLoan(loan: LoanRow): Loan {
     return {
       id: loan.id,

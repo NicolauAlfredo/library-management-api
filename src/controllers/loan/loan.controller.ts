@@ -84,4 +84,17 @@ export class LoanController {
       data: loans,
     });
   }
+
+  async updateOverdueLoans(
+    req: AuthenticatedRequest,
+    res: Response,
+  ): Promise<void> {
+    const result = await this.loanService.updateOverdueLoans();
+
+    res.status(200).json({
+      success: true,
+      message: "Overdue loans updated successfully",
+      data: result,
+    });
+  }
 }

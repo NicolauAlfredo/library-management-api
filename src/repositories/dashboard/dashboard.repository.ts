@@ -9,7 +9,7 @@ export class DashboardRepository {
   private async count(query: string): Promise<number> {
     const [rows] = await db.query<CountRow[]>(query);
 
-    return rows[0].total;
+    return Number(rows[0].total);
   }
 
   async getAdminStats() {
