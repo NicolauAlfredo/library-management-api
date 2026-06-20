@@ -8,6 +8,7 @@ CREATE TABLE users (
     email VARCHAR(255) NOT NULL UNIQUE,
     password VARCHAR(255) NOT NULL,
     role ENUM('ADMIN', 'USER') NOT NULL DEFAULT 'USER',
+    deleted_at TIMESTAMP NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
@@ -21,6 +22,7 @@ CREATE TABLE books (
     cover_url VARCHAR(500) NULL,
     quantity INT NOT NULL DEFAULT 1,
     available_quantity INT NOT NULL DEFAULT 1,
+    deleted_at TIMESTAMP NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
@@ -37,10 +39,10 @@ CREATE TABLE loans (
     CONSTRAINT fk_loan_user
         FOREIGN KEY (user_id)
         REFERENCES users(id)
-        ON DELETE CASCADE,
+        ON DELETE RESTRICT,
 
     CONSTRAINT fk_loan_book
         FOREIGN KEY (book_id)
         REFERENCES books(id)
-        ON DELETE CASCADE
+        ON DELETE RESTRICT
 );
