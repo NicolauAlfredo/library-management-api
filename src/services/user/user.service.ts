@@ -1,3 +1,4 @@
+import { AppError } from "../../errors/app-errors";
 import { User } from "../../models/user/userModel";
 import { UserRepository } from "../../repositories/user/user.repository";
 import { Role } from "../../types/role";
@@ -23,7 +24,7 @@ export class UserService {
     const user = await this.userRepository.findById(id);
 
     if (!user) {
-      throw new Error("User not found");
+      throw new AppError("User not found", 404);
     }
 
     const { password, ...userWithoutPassword } = user;
@@ -33,11 +34,11 @@ export class UserService {
 
   async update(id: number, data: UpdateUserData): Promise<PublicUser> {
     if (data.name !== undefined && data.name.trim().length < 2) {
-      throw new Error("User name must have at least 2 characters");
+      throw new AppError("User name must have at least 2 characters", 400);
     }
 
     if (data.email !== undefined && !data.email.includes("@")) {
-      throw new Error("Invalid email");
+      throw new AppError("Invalid email", 400);
     }
 
     if (
@@ -45,13 +46,13 @@ export class UserService {
       data.role !== Role.ADMIN &&
       data.role !== Role.USER
     ) {
-      throw new Error("Invalid role");
+      throw new AppError("Invalid role", 400);
     }
 
     const updatedUser = await this.userRepository.update(id, data);
 
     if (!updatedUser) {
-      throw new Error("User not found");
+      throw new AppError("User not found", 404);
     }
 
     const { password, ...userWithoutPassword } = updatedUser;
@@ -61,13 +62,13 @@ export class UserService {
 
   async delete(id: number, authenticatedUserId: number): Promise<void> {
     if (id === authenticatedUserId) {
-      throw new Error("You cannot delete your own account");
+      throw new AppError("You cannot delete your own account", 403);
     }
 
     const deleted = await this.userRepository.delete(id);
 
     if (!deleted) {
-      throw new Error("User not found");
+      throw new AppError("User not found");
     }
   }
 }

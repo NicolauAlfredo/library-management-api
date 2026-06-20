@@ -1,6 +1,7 @@
 import { ResultSetHeader, RowDataPacket } from "mysql2";
 import { db } from "../../config/database";
 import { Book } from "../../models/book/bookModel";
+import { AppError } from "../../errors/app-errors";
 
 interface BookRow extends RowDataPacket {
   id: number;
@@ -118,6 +119,21 @@ export class BookRepository {
     return this.mapToBook(book);
   }
 
+  async findByIsbn(isbn: string): Promise<Book | null> {
+    const [rows] = await db.query<BookRow[]>(
+      "SELECT * FROM books WHERE isbn = ? LIMIT 1",
+      [isbn],
+    );
+
+    const book = rows[0];
+
+    if (!book) {
+      return null;
+    }
+
+    return this.mapToBook(book);
+  }
+
   async create(data: CreateBookData): Promise<Book> {
     const [result] = await db.query<ResultSetHeader>(
       `
@@ -138,7 +154,7 @@ export class BookRepository {
     const createdBook = await this.findById(result.insertId);
 
     if (!createdBook) {
-      throw new Error("Book could not be created");
+      throw new AppError("Book could not be created", 500);
     }
 
     return createdBook;

@@ -9,6 +9,7 @@ import {
   borrowBookParamsSchema,
   loanParamsSchema,
 } from "../../validations/loan/loan.validation";
+import { asyncHandler } from "../../utils/async-handler";
 
 const loanRoutes = Router();
 
@@ -18,27 +19,27 @@ loanRoutes.get(
   "/",
   authenticate,
   authorize(Role.ADMIN),
-  loanController.findAll.bind(loanController),
+  asyncHandler(loanController.findAll.bind(loanController)),
 );
 
 loanRoutes.post(
   "/borrow/:bookId",
   authenticate,
   validate(borrowBookParamsSchema, "params"),
-  loanController.borrowBook.bind(loanController),
+  asyncHandler(loanController.borrowBook.bind(loanController)),
 );
 
 loanRoutes.patch(
   "/:id/return",
   authenticate,
   validate(loanParamsSchema, "params"),
-  loanController.returnBook.bind(loanController),
+  asyncHandler(loanController.returnBook.bind(loanController)),
 );
 
 loanRoutes.get(
   "/my",
   authenticate,
-  loanController.findMyLoans.bind(loanController),
+  asyncHandler(loanController.findMyLoans.bind(loanController)),
 );
 
 export default loanRoutes;

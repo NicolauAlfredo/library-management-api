@@ -7,6 +7,7 @@ import loanRoutes from "./routes/loan/loan.routes";
 import userRoutes from "./routes/user/user.routes";
 import { swaggerDocument } from "./config/swagger";
 import swaggerUi from "swagger-ui-express";
+import { errorMiddleware } from "./middlewares/error.middleware";
 
 const app = express();
 
@@ -36,5 +37,8 @@ app.get("/", (req, res) => {
     message: "Library Management API is running",
   });
 });
+
+// Errors
+app.use(errorMiddleware);
 
 export default app;

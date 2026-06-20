@@ -2,6 +2,7 @@ import { ResultSetHeader, RowDataPacket } from "mysql2";
 import { db } from "../../config/database";
 import { User } from "../../models/user/userModel";
 import { Role } from "../../types/role";
+import { AppError } from "../../errors/app-errors";
 
 interface UserRow extends RowDataPacket {
   id: number;
@@ -77,7 +78,7 @@ export class UserRepository {
     const createdUser = await this.findById(result.insertId);
 
     if (!createdUser) {
-      throw new Error("User could not be created");
+      throw new AppError("User could not be created", 500);
     }
 
     return createdUser;

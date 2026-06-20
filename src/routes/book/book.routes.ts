@@ -4,6 +4,7 @@ import { authenticate } from "../../middlewares/auth/auth.middleware";
 import { authorize } from "../../middlewares/role/roleMiddleware";
 import { Role } from "../../types/role";
 import { validate } from "../../middlewares/validate.middleware";
+import { asyncHandler } from "../../utils/async-handler";
 
 import {
   bookParamsSchema,
@@ -20,14 +21,14 @@ bookRoutes.get(
   "/",
   authenticate,
   validate(bookQuerySchema, "query"),
-  bookController.findAll.bind(bookController),
+  asyncHandler(bookController.findAll.bind(bookController)),
 );
 
 bookRoutes.get(
   "/:id",
   authenticate,
   validate(bookParamsSchema, "params"),
-  bookController.findById.bind(bookController),
+  asyncHandler(bookController.findById.bind(bookController)),
 );
 
 bookRoutes.post(
@@ -35,7 +36,7 @@ bookRoutes.post(
   authenticate,
   authorize(Role.ADMIN),
   validate(createBookSchema, "body"),
-  bookController.create.bind(bookController),
+  asyncHandler(bookController.create.bind(bookController)),
 );
 
 bookRoutes.put(
@@ -44,7 +45,7 @@ bookRoutes.put(
   authorize(Role.ADMIN),
   validate(bookParamsSchema, "params"),
   validate(updateBookSchema, "body"),
-  bookController.update.bind(bookController),
+  asyncHandler(bookController.update.bind(bookController)),
 );
 
 bookRoutes.delete(
@@ -52,7 +53,7 @@ bookRoutes.delete(
   authenticate,
   authorize(Role.ADMIN),
   validate(bookParamsSchema, "params"),
-  bookController.delete.bind(bookController),
+  asyncHandler(bookController.delete.bind(bookController)),
 );
 
 export default bookRoutes;

@@ -1,5 +1,6 @@
 import { Book } from "../../models/book/bookModel";
 import { BookRepository } from "../../repositories/book/book.repository";
+import { AppError } from "../../errors/app-errors";
 
 interface CreateBookData {
   title: string;
@@ -71,23 +72,37 @@ export class BookService {
     const book = await this.bookRepository.findById(id);
 
     if (!book) {
-      throw new Error("Book not found");
+      throw new AppError("Book not found", 404);
     }
 
     return book;
   }
 
   async create(data: CreateBookData): Promise<Book> {
-    this.validateCreateBookData(data);
+    if (data.isbn) {
+      const existingBook = await this.bookRepository.findByIsbn(data.isbn);
+
+      if (existingBook) {
+        throw new AppError("Book with this ISBN already exists", 409);
+      }
+    }
 
     return this.bookRepository.create(data);
   }
 
   async update(id: number, data: UpdateBookData): Promise<Book> {
+    if (data.isbn) {
+      const existingBook = await this.bookRepository.findByIsbn(data.isbn);
+
+      if (existingBook && existingBook.id !== id) {
+        throw new AppError("Book with this ISBN already exists", 409);
+      }
+    }
+
     const book = await this.bookRepository.update(id, data);
 
     if (!book) {
-      throw new Error("Book not found");
+      throw new AppError("Book not found", 404);
     }
 
     return book;
@@ -97,25 +112,7 @@ export class BookService {
     const deleted = await this.bookRepository.delete(id);
 
     if (!deleted) {
-      throw new Error("Book not found");
-    }
-  }
-
-  private validateCreateBookData(data: CreateBookData): void {
-    if (!data.title || data.title.trim().length < 2) {
-      throw new Error("Book title is required");
-    }
-
-    if (!data.author || data.author.trim().length < 2) {
-      throw new Error("Book author is required");
-    }
-
-    if (!Number.isInteger(data.quantity) || data.quantity < 1) {
-      throw new Error("Book quantity must be greater than zero");
-    }
-
-    if (data.coverUrl !== undefined && !data.coverUrl.startsWith("http")) {
-      throw new Error("Book cover URL must be valid");
+      throw new AppError("Book not found", 404);
     }
   }
 }

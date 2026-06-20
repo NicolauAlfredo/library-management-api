@@ -9,6 +9,7 @@ import {
   loginSchema,
   registerSchema,
 } from "../../validations/auth/auth.validation";
+import { asyncHandler } from "../../utils/async-handler";
 
 const authRoutes = Router();
 
@@ -17,16 +18,19 @@ const authController = new AuthController();
 authRoutes.post(
   "/register",
   validate(registerSchema, "body"),
-  authController.register.bind(authController),
+  asyncHandler(authController.register.bind(authController)),
 );
 
-authRoutes.post("/login", authController.login.bind(authController));
+authRoutes.post(
+  "/login",
+  asyncHandler(authController.login.bind(authController)),
+);
 
 authRoutes.get(
   "/profile",
   authenticate,
   validate(loginSchema, "body"),
-  authController.profile.bind(authController),
+  asyncHandler(authController.profile.bind(authController)),
 );
 
 authRoutes.get("/admin", authenticate, authorize(Role.ADMIN), (req, res) => {

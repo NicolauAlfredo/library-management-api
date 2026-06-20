@@ -3,95 +3,58 @@ import { UserService } from "../../services/user/user.service";
 import { parseId } from "../../utils/parse-id";
 import { AuthenticatedRequest } from "../../types/authenticated.request";
 
-interface UserParams {
-  id: string;
-}
-
 export class UserController {
   private userService = new UserService();
 
   async findAll(req: Request, res: Response): Promise<void> {
-    try {
-      const users = await this.userService.findAll();
+    const users = await this.userService.findAll();
 
-      res.status(200).json({
-        success: true,
-        data: users,
-      });
-    } catch (error) {
-      res.status(500).json({
-        success: false,
-        message:
-          error instanceof Error ? error.message : "Failed to fetch users",
-      });
-    }
+    res.status(200).json({
+      success: true,
+      data: users,
+    });
   }
 
-  async findById(req: Request<UserParams>, res: Response): Promise<void> {
-    try {
-      const id = parseId(req.params.id);
-      const user = await this.userService.findById(id);
+  async findById(req: Request, res: Response): Promise<void> {
+    const id = parseId(req.params.id);
 
-      res.status(200).json({
-        success: true,
-        data: user,
-      });
-    } catch (error) {
-      res.status(404).json({
-        success: false,
-        message: error instanceof Error ? error.message : "User not found",
-      });
-    }
+    const user = await this.userService.findById(id);
+
+    res.status(200).json({
+      success: true,
+      data: user,
+    });
   }
 
-  async update(req: Request<UserParams>, res: Response): Promise<void> {
-    try {
-      const id = parseId(req.params.id);
+  async update(req: Request, res: Response): Promise<void> {
+    const id = parseId(req.params.id);
 
-      const user = await this.userService.update(id, req.body);
+    const user = await this.userService.update(id, req.body);
 
-      res.status(200).json({
-        success: true,
-        data: user,
-      });
-    } catch (error) {
-      res.status(400).json({
-        success: false,
-        message:
-          error instanceof Error ? error.message : "Failed to update user",
-      });
-    }
+    res.status(200).json({
+      success: true,
+      data: user,
+    });
   }
 
-  async delete(
-    req: AuthenticatedRequest<UserParams>,
-    res: Response,
-  ): Promise<void> {
-    try {
-      const id = parseId(req.params.id);
-      const authenticatedUserId = req.user?.id;
+  async delete(req: AuthenticatedRequest, res: Response): Promise<void> {
+    const id = parseId(req.params.id);
+    const authenticatedUserId = req.user?.id;
 
-      if (!authenticatedUserId) {
-        res.status(401).json({
-          success: false,
-          message: "Authentication required",
-        });
-
-        return;
-      }
-
-      await this.userService.delete(id, authenticatedUserId);
-
-      res.status(200).json({
-        success: true,
-        message: "User deleted successfully",
-      });
-    } catch (error) {
-      res.status(400).json({
+    if (!authenticatedUserId) {
+      res.status(401).json({
         success: false,
-        message:
-          error instanceof Error ? error.message : "Failed to delete user",
+        message: "Authentication required",
       });
+
+      return;
     }
+
+    await this.userService.delete(id, authenticatedUserId);
+
+    res.status(200).json({
+      success: true,
+      message: "User deleted successfully",
+    });
   }
 }

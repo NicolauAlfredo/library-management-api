@@ -8,6 +8,7 @@ import {
   userParamsSchema,
   updateUserSchema,
 } from "../../validations/user/user.validation";
+import { asyncHandler } from "../../utils/async-handler";
 
 const userRoutes = Router();
 
@@ -17,7 +18,7 @@ userRoutes.get(
   "/",
   authenticate,
   authorize(Role.ADMIN),
-  userController.findAll.bind(userController),
+  asyncHandler(userController.findAll.bind(userController)),
 );
 
 userRoutes.get(
@@ -25,7 +26,7 @@ userRoutes.get(
   authenticate,
   authorize(Role.ADMIN),
   validate(userParamsSchema, "params"),
-  userController.findById.bind(userController),
+  asyncHandler(userController.findById.bind(userController)),
 );
 
 userRoutes.put(
@@ -34,7 +35,7 @@ userRoutes.put(
   authorize(Role.ADMIN),
   validate(userParamsSchema, "params"),
   validate(updateUserSchema, "body"),
-  userController.update.bind(userController),
+  asyncHandler(userController.update.bind(userController)),
 );
 
 userRoutes.delete(
@@ -42,7 +43,7 @@ userRoutes.delete(
   authenticate,
   authorize(Role.ADMIN),
   validate(userParamsSchema, "params"),
-  userController.delete.bind(userController),
+  asyncHandler(userController.delete.bind(userController)),
 );
 
 export default userRoutes;
