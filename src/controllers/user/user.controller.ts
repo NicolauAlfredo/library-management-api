@@ -7,11 +7,19 @@ export class UserController {
   private userService = new UserService();
 
   async findAll(req: Request, res: Response): Promise<void> {
-    const users = await this.userService.findAll();
+    const { page, limit, search, role } = res.locals.query;
+
+    const result = await this.userService.findAll({
+      page,
+      limit,
+      search,
+      role,
+    });
 
     res.status(200).json({
       success: true,
-      data: users,
+      data: result.users,
+      pagination: result.pagination,
     });
   }
 

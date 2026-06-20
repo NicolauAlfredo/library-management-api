@@ -10,3 +10,10 @@ export const updateUserSchema = z.object({
   email: z.string().email().optional(),
   role: z.nativeEnum(Role).optional(),
 });
+
+export const userQuerySchema = z.object({
+  page: z.coerce.number().int().positive().optional(),
+  limit: z.coerce.number().int().positive().max(100).optional(),
+  search: z.string().optional(),
+  role: z.nativeEnum(Role).optional(),
+});

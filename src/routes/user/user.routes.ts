@@ -6,6 +6,7 @@ import { Role } from "../../types/role";
 import { validate } from "../../middlewares/validate.middleware";
 import {
   userParamsSchema,
+  userQuerySchema,
   updateUserSchema,
 } from "../../validations/user/user.validation";
 import { asyncHandler } from "../../utils/async-handler";
@@ -18,6 +19,7 @@ userRoutes.get(
   "/",
   authenticate,
   authorize(Role.ADMIN),
+  validate(userQuerySchema, "query"),
   asyncHandler(userController.findAll.bind(userController)),
 );
 

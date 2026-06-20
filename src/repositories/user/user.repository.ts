@@ -27,13 +27,67 @@ interface UpdateUserData {
   role?: Role;
 }
 
+interface FindAllUsersParams {
+  page: number;
+  limit: number;
+  search?: string;
+  role?: Role;
+}
+
+interface FindAllUsersResult {
+  users: User[];
+  total: number;
+}
+
 export class UserRepository {
-  async findAll(): Promise<User[]> {
+  async findAll(params: FindAllUsersParams): Promise<FindAllUsersResult> {
+    const { page, limit, search, role } = params;
+
+    const offset = (page - 1) * limit;
+
+    const conditions: string[] = [];
+    const values: unknown[] = [];
+
+    if (search) {
+      conditions.push("(name LIKE ? OR email LIKE ?)");
+
+      const searchValue = `%${search}%`;
+
+      values.push(searchValue, searchValue);
+    }
+
+    if (role) {
+      conditions.push("role = ?");
+      values.push(role);
+    }
+
+    const whereClause =
+      conditions.length > 0 ? `WHERE ${conditions.join(" AND ")}` : "";
+
     const [rows] = await db.query<UserRow[]>(
-      "SELECT * FROM users ORDER BY created_at DESC",
+      `
+    SELECT *
+    FROM users
+    ${whereClause}
+    ORDER BY created_at DESC
+    LIMIT ? OFFSET ?
+    `,
+      [...values, limit, offset],
     );
 
-    return rows.map((user) => this.mapToUser(user));
+    const [countRows] = await db.query<RowDataPacket[]>(
+      `
+    SELECT COUNT(*) AS total
+    FROM users
+    ${whereClause}
+    `,
+      values,
+    );
+
+    return {
+      users: rows.map((user) => this.mapToUser(user)),
+      total: countRows[0].total,
+    };
   }
 
   async findByEmail(email: string): Promise<User | null> {

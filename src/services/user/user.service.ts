@@ -9,15 +9,42 @@ interface UpdateUserData {
   role?: Role;
 }
 
+interface FindAllUsersParams {
+  page?: number;
+  limit?: number;
+  search?: string;
+  role?: Role;
+}
+
 type PublicUser = Omit<User, "password">;
 
 export class UserService {
   private userRepository = new UserRepository();
 
-  async findAll(): Promise<PublicUser[]> {
-    const users = await this.userRepository.findAll();
+  async findAll(params: FindAllUsersParams) {
+    const page = params.page && params.page > 0 ? params.page : 1;
 
-    return users.map(({ password, ...user }) => user);
+    const limit =
+      params.limit && params.limit > 0 && params.limit <= 100
+        ? params.limit
+        : 10;
+
+    const { users, total } = await this.userRepository.findAll({
+      page,
+      limit,
+      search: params.search,
+      role: params.role,
+    });
+
+    return {
+      users: users.map(({ password, ...user }) => user),
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit),
+      },
+    };
   }
 
   async findById(id: number): Promise<PublicUser> {
