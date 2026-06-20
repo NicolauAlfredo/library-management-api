@@ -10,6 +10,7 @@ interface UserRow extends RowDataPacket {
   email: string;
   password: string;
   role: Role;
+  deleted_at: Date | null;
   created_at: Date;
   updated_at: Date;
 }
@@ -45,7 +46,7 @@ export class UserRepository {
 
     const offset = (page - 1) * limit;
 
-    const conditions: string[] = [];
+    const conditions: string[] = ["deleted_at IS NULL"];
     const values: unknown[] = [];
 
     if (search) {
@@ -92,7 +93,13 @@ export class UserRepository {
 
   async findByEmail(email: string): Promise<User | null> {
     const [rows] = await db.query<UserRow[]>(
-      "SELECT * FROM users WHERE email = ? LIMIT 1",
+      `
+    SELECT *
+    FROM users
+    WHERE email = ?
+      AND deleted_at IS NULL
+    LIMIT 1
+    `,
       [email],
     );
 
@@ -107,7 +114,13 @@ export class UserRepository {
 
   async findById(id: number): Promise<User | null> {
     const [rows] = await db.query<UserRow[]>(
-      "SELECT * FROM users WHERE id = ? LIMIT 1",
+      `
+    SELECT *
+    FROM users
+    WHERE id = ?
+      AND deleted_at IS NULL
+    LIMIT 1
+    `,
       [id],
     );
 
@@ -147,10 +160,8 @@ export class UserRepository {
 
     await db.query(
       `
-    UPDATE users
-    SET name = ?, email = ?, role = ?
-    WHERE id = ?
-    `,
+      UPDATE users  SET name = ?, email = ?, role = ? WHERE id = ? AND deleted_at IS NULL
+      `,
       [
         data.name ?? currentUser.name,
         data.email ?? currentUser.email,
@@ -164,11 +175,24 @@ export class UserRepository {
 
   async delete(id: number): Promise<boolean> {
     const [result] = await db.query<ResultSetHeader>(
-      "DELETE FROM users WHERE id = ?",
+      `
+      UPDATE users  SET deleted_at = NOW() WHERE id = ? AND deleted_at IS NULL
+      `,
       [id],
     );
 
     return result.affectedRows > 0;
+  }
+
+  async hasActiveLoans(userId: number): Promise<boolean> {
+    const [rows] = await db.query<RowDataPacket[]>(
+      `
+      SELECT id  FROM loans  WHERE user_id = ?   AND status = 'ACTIVE'  LIMIT 1
+      `,
+      [userId],
+    );
+
+    return rows.length > 0;
   }
 
   private mapToUser(row: UserRow): User {
@@ -178,6 +202,7 @@ export class UserRepository {
       email: row.email,
       password: row.password,
       role: row.role,
+      deletedAt: row.deleted_at,
       createdAt: row.created_at,
       updatedAt: row.updated_at,
     };

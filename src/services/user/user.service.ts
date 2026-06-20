@@ -92,6 +92,12 @@ export class UserService {
       throw new AppError("You cannot delete your own account", 403);
     }
 
+    const hasActiveLoans = await this.userRepository.hasActiveLoans(id);
+
+    if (hasActiveLoans) {
+      throw new AppError("Cannot delete a user with active loans", 409);
+    }
+
     const deleted = await this.userRepository.delete(id);
 
     if (!deleted) {
