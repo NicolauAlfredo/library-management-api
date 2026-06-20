@@ -27,6 +27,20 @@ interface LoanWithDetailsRow extends RowDataPacket {
   status: LoanStatus;
 }
 
+interface FindAllLoansParams {
+  page: number;
+  limit: number;
+  status?: LoanStatus;
+  userId?: number;
+  bookId?: number;
+  search?: string;
+}
+
+interface FindAllLoansResult {
+  loans: Loan[];
+  total: number;
+}
+
 export class LoanRepository {
   async create(userId: number, bookId: number, dueDate: Date): Promise<number> {
     const [result] = await db.query<ResultSetHeader>(
@@ -44,7 +58,42 @@ export class LoanRepository {
     return result.insertId;
   }
 
-  async findAll() {
+  async findAll(params: FindAllLoansParams): Promise<FindAllLoansResult> {
+    const { page, limit, status, userId, bookId, search } = params;
+
+    const offset = (page - 1) * limit;
+
+    const conditions: string[] = [];
+    const values: unknown[] = [];
+
+    if (status) {
+      conditions.push("loans.status = ?");
+      values.push(status);
+    }
+
+    if (userId) {
+      conditions.push("loans.user_id = ?");
+      values.push(userId);
+    }
+
+    if (bookId) {
+      conditions.push("loans.book_id = ?");
+      values.push(bookId);
+    }
+
+    if (search) {
+      conditions.push(
+        "(users.name LIKE ? OR users.email LIKE ? OR books.title LIKE ?)",
+      );
+
+      const searchValue = `%${search}%`;
+
+      values.push(searchValue, searchValue, searchValue);
+    }
+
+    const whereClause =
+      conditions.length > 0 ? `WHERE ${conditions.join(" AND ")}` : "";
+
     const [rows] = await db.query<LoanWithDetailsRow[]>(
       `
     SELECT
@@ -62,11 +111,40 @@ export class LoanRepository {
     FROM loans
     INNER JOIN users ON users.id = loans.user_id
     INNER JOIN books ON books.id = loans.book_id
+    ${whereClause}
     ORDER BY loans.loan_date DESC
+    LIMIT ? OFFSET ?
     `,
+      [...values, limit, offset],
     );
 
-    return rows.map((loan) => this.mapToLoan(loan));
+    const [countRows] = await db.query<RowDataPacket[]>(
+      `
+    SELECT COUNT(*) AS total
+    FROM loans
+    INNER JOIN users ON users.id = loans.user_id
+    INNER JOIN books ON books.id = loans.book_id
+    ${whereClause}
+    `,
+      values,
+    );
+
+    return {
+      loans: rows.map((loan) => ({
+        id: loan.id,
+        userId: loan.user_id,
+        userName: loan.user_name,
+        userEmail: loan.user_email,
+        bookId: loan.book_id,
+        bookTitle: loan.book_title,
+        bookAuthor: loan.book_author,
+        loanDate: loan.loan_date,
+        dueDate: loan.due_date,
+        returnedAt: loan.returned_at,
+        status: loan.status,
+      })),
+      total: countRows[0].total,
+    };
   }
 
   async findById(id: number): Promise<Loan | null> {

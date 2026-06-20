@@ -5,6 +5,15 @@ import { LoanRepository } from "../../repositories/loan/loan.repository";
 import { UserRepository } from "../../repositories/user/user.repository";
 import { LoanStatus } from "../../types/loan.status";
 
+interface FindAllLoansParams {
+  page?: number;
+  limit?: number;
+  status?: LoanStatus;
+  userId?: number;
+  bookId?: number;
+  search?: string;
+}
+
 export class LoanService {
   private loanRepository = new LoanRepository();
   private bookRepository = new BookRepository();
@@ -78,8 +87,32 @@ export class LoanService {
     return updatedLoan;
   }
 
-  async findAll(): Promise<Loan[]> {
-    return this.loanRepository.findAll();
+  async findAll(params: FindAllLoansParams) {
+    const page = params.page && params.page > 0 ? params.page : 1;
+
+    const limit =
+      params.limit && params.limit > 0 && params.limit <= 100
+        ? params.limit
+        : 10;
+
+    const { loans, total } = await this.loanRepository.findAll({
+      page,
+      limit,
+      status: params.status,
+      userId: params.userId,
+      bookId: params.bookId,
+      search: params.search,
+    });
+
+    return {
+      loans,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit),
+      },
+    };
   }
 
   async findMyLoans(userId: number): Promise<Loan[]> {

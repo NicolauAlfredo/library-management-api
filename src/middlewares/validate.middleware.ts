@@ -18,7 +18,17 @@ export function validate(
       return;
     }
 
-    req[property] = result.data;
+    if (property === "body") {
+      req.body = result.data;
+    }
+
+    if (property === "params") {
+      req.params = result.data;
+    }
+
+    // Do not assign req.query directly.
+    // In Express, req.query may be read-only.
+    res.locals.query = result.data;
 
     next();
   };

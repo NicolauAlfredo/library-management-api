@@ -8,6 +8,7 @@ import { validate } from "../../middlewares/validate.middleware";
 import {
   borrowBookParamsSchema,
   loanParamsSchema,
+  loanQuerySchema,
 } from "../../validations/loan/loan.validation";
 import { asyncHandler } from "../../utils/async-handler";
 
@@ -19,6 +20,7 @@ loanRoutes.get(
   "/",
   authenticate,
   authorize(Role.ADMIN),
+  validate(loanQuerySchema, "query"),
   asyncHandler(loanController.findAll.bind(loanController)),
 );
 

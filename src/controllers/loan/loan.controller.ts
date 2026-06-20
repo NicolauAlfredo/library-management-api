@@ -2,16 +2,27 @@ import { Response } from "express";
 import { LoanService } from "../../services/loan/loan.service";
 import { AuthenticatedRequest } from "../../types/authenticated.request";
 import { parseId } from "../../utils/parse-id";
+import { LoanStatus } from "../../types/loan.status";
 
 export class LoanController {
   private loanService = new LoanService();
 
   async findAll(req: AuthenticatedRequest, res: Response): Promise<void> {
-    const loans = await this.loanService.findAll();
+    const { page, limit, status, userId, bookId, search } = res.locals.query;
+
+    const result = await this.loanService.findAll({
+      page,
+      limit,
+      status,
+      userId,
+      bookId,
+      search,
+    });
 
     res.status(200).json({
       success: true,
-      data: loans,
+      data: result.loans,
+      pagination: result.pagination,
     });
   }
 
