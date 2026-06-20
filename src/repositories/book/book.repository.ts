@@ -12,6 +12,7 @@ interface BookRow extends RowDataPacket {
   cover_url: string | null;
   quantity: number;
   available_quantity: number;
+  deleted_at: Date | null;
   created_at: Date;
   updated_at: Date;
 }
@@ -53,7 +54,7 @@ export class BookRepository {
 
     const offset = (page - 1) * limit;
 
-    const conditions: string[] = [];
+    const conditions: string[] = ["deleted_at IS NULL"];
     const values: unknown[] = [];
 
     if (search) {
@@ -106,7 +107,7 @@ export class BookRepository {
 
   async findById(id: number): Promise<Book | null> {
     const [rows] = await db.query<BookRow[]>(
-      "SELECT * FROM books WHERE id = ? LIMIT 1",
+      "SELECT * FROM books WHERE id = ? AND deleted_at IS NULL LIMIT 1",
       [id],
     );
 
@@ -121,7 +122,7 @@ export class BookRepository {
 
   async findByIsbn(isbn: string): Promise<Book | null> {
     const [rows] = await db.query<BookRow[]>(
-      "SELECT * FROM books WHERE isbn = ? LIMIT 1",
+      "SELECT * FROM books WHERE isbn = ? AND deleted_at IS NULL LIMIT 1",
       [isbn],
     );
 
@@ -182,7 +183,7 @@ export class BookRepository {
       `
       UPDATE books
       SET title = ?, author = ?, category = ?, isbn = ?, cover_url = ?, quantity = ?, available_quantity = ?
-      WHERE id = ?
+      WHERE id = ? AND deleted_at IS NULL
       `,
       [
         data.title ?? currentBook.title,
@@ -201,7 +202,12 @@ export class BookRepository {
 
   async delete(id: number): Promise<boolean> {
     const [result] = await db.query<ResultSetHeader>(
-      "DELETE FROM books WHERE id = ?",
+      `
+    UPDATE books
+    SET deleted_at = NOW()
+    WHERE id = ?
+      AND deleted_at IS NULL
+    `,
       [id],
     );
 
@@ -230,6 +236,21 @@ export class BookRepository {
     );
   }
 
+  async hasActiveLoans(bookId: number): Promise<boolean> {
+    const [rows] = await db.query<RowDataPacket[]>(
+      `
+    SELECT id
+    FROM loans
+    WHERE book_id = ?
+      AND status = 'ACTIVE'
+    LIMIT 1
+    `,
+      [bookId],
+    );
+
+    return rows.length > 0;
+  }
+
   private mapToBook(row: BookRow): Book {
     return {
       id: row.id,
@@ -240,6 +261,7 @@ export class BookRepository {
       coverUrl: row.cover_url,
       quantity: row.quantity,
       availableQuantity: row.available_quantity,
+      deletedAt: row.deleted_at,
       createdAt: row.created_at,
       updatedAt: row.updated_at,
     };

@@ -109,6 +109,12 @@ export class BookService {
   }
 
   async delete(id: number): Promise<void> {
+    const hasActiveLoans = await this.bookRepository.hasActiveLoans(id);
+
+    if (hasActiveLoans) {
+      throw new AppError("Cannot delete a book with active loans", 409);
+    }
+
     const deleted = await this.bookRepository.delete(id);
 
     if (!deleted) {

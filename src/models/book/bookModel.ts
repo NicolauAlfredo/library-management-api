@@ -7,6 +7,7 @@ export interface Book {
   coverUrl: string | null;
   quantity: number;
   availableQuantity: number;
+  deletedAt: Date | null;
   createdAt: Date;
   updatedAt: Date;
 }
