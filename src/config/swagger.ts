@@ -143,6 +143,53 @@ export const swaggerDocument: OpenAPIV3.Document = {
         tags: ["Books"],
         summary: "Get all books",
         security: [{ bearerAuth: [] }],
+        parameters: [
+          {
+            name: "page",
+            in: "query",
+            required: false,
+            schema: {
+              type: "integer",
+              example: 1,
+            },
+          },
+          {
+            name: "limit",
+            in: "query",
+            required: false,
+            schema: {
+              type: "integer",
+              example: 10,
+            },
+          },
+          {
+            name: "search",
+            in: "query",
+            required: false,
+            schema: {
+              type: "string",
+              example: "clean",
+            },
+          },
+          {
+            name: "category",
+            in: "query",
+            required: false,
+            schema: {
+              type: "string",
+              example: "Software Engineering",
+            },
+          },
+          {
+            name: "available",
+            in: "query",
+            required: false,
+            schema: {
+              type: "boolean",
+              example: true,
+            },
+          },
+        ],
         responses: {
           "200": {
             description: "Books fetched successfully",
