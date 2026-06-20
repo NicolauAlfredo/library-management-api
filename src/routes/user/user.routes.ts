@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { UserController } from "../../controllers/user/user.controller";
 import { authenticate } from "../../middlewares/auth/auth.middleware";
-import { authorize } from "../../middlewares/role/roleMiddleware";
+import { authorize } from "../../middlewares/role/role.middleware";
 import { Role } from "../../types/role";
 import { validate } from "../../middlewares/validate.middleware";
 import {

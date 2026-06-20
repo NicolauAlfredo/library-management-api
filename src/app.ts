@@ -8,6 +8,7 @@ import userRoutes from "./routes/user/user.routes";
 import { swaggerDocument } from "./config/swagger";
 import swaggerUi from "swagger-ui-express";
 import { errorMiddleware } from "./middlewares/error.middleware";
+import dashboardRoutes from "./routes/dashboard/dashboard.routes";
 
 const app = express();
 
@@ -26,6 +27,9 @@ app.use("/loans", loanRoutes);
 
 // User
 app.use("/users", userRoutes);
+
+// Dashboard
+app.use("/dashboard", dashboardRoutes);
 
 // Swagger
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
