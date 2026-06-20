@@ -63,7 +63,10 @@ export class LoanRepository {
 
     const offset = (page - 1) * limit;
 
-    const conditions: string[] = [];
+    const conditions: string[] = [
+      "users.deleted_at IS NULL",
+      "books.deleted_at IS NULL",
+    ];
     const values: unknown[] = [];
 
     if (status) {
@@ -164,7 +167,7 @@ export class LoanRepository {
 
   async findByUser(userId: number): Promise<Loan[]> {
     const [rows] = await db.query<LoanRow[]>(
-      "SELECT * FROM loans WHERE user_id = ?",
+      "SELECT * FROM loans INNER JOIN books ON books.id = loans.book_id WHERE loans.user_id = ? AND books.deleted_at IS NULL ORDER BY loan_date DESC",
       [userId],
     );
 
