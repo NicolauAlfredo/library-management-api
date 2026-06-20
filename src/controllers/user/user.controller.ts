@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { UserService } from "../../services/user/user.service";
-import { parseId } from "../../utils/parseId";
+import { parseId } from "../../utils/parse-id";
 import { AuthenticatedRequest } from "../../types/authenticated.request";
 import { Role } from "../../types/role";
 

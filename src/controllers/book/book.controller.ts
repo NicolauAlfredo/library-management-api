@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { BookService } from "../../services/book/book.service";
-import { parseId } from "../../utils/parseId";
+import { parseId } from "../../utils/parse-id";
 
 interface CreateBookBody {
   title: string;

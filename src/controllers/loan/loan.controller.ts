@@ -1,7 +1,7 @@
 import { Response } from "express";
 import { LoanService } from "../../services/loan/loan.service";
 import { AuthenticatedRequest } from "../../types/authenticated.request";
-import { parseId } from "../../utils/parseId";
+import { parseId } from "../../utils/parse-id";
 
 interface LoanParams {
   id: string;
