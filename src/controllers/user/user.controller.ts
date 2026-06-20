@@ -2,16 +2,9 @@ import { Request, Response } from "express";
 import { UserService } from "../../services/user/user.service";
 import { parseId } from "../../utils/parse-id";
 import { AuthenticatedRequest } from "../../types/authenticated.request";
-import { Role } from "../../types/role";
 
 interface UserParams {
   id: string;
-}
-
-interface UpdateUserBody {
-  name?: string;
-  email?: string;
-  role?: Role;
 }
 
 export class UserController {
@@ -51,10 +44,7 @@ export class UserController {
     }
   }
 
-  async update(
-    req: Request<UserParams, {}, UpdateUserBody>,
-    res: Response,
-  ): Promise<void> {
+  async update(req: Request<UserParams>, res: Response): Promise<void> {
     try {
       const id = parseId(req.params.id);
 

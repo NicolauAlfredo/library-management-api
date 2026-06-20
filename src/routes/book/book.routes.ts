@@ -10,7 +10,7 @@ import {
   bookQuerySchema,
   createBookSchema,
   updateBookSchema,
-} from "../../validations/book.validation";
+} from "../../validations/book/book.validation";
 
 const bookRoutes = Router();
 

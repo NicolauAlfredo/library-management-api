@@ -4,6 +4,12 @@ import { authenticate } from "../../middlewares/auth/auth.middleware";
 import { authorize } from "../../middlewares/role/roleMiddleware";
 import { Role } from "../../types/role";
 
+import { validate } from "../../middlewares/validate.middleware";
+import {
+  borrowBookParamsSchema,
+  loanParamsSchema,
+} from "../../validations/loan/loan.validation";
+
 const loanRoutes = Router();
 
 const loanController = new LoanController();
@@ -18,12 +24,14 @@ loanRoutes.get(
 loanRoutes.post(
   "/borrow/:bookId",
   authenticate,
+  validate(borrowBookParamsSchema, "params"),
   loanController.borrowBook.bind(loanController),
 );
 
 loanRoutes.patch(
   "/:id/return",
   authenticate,
+  validate(loanParamsSchema, "params"),
   loanController.returnBook.bind(loanController),
 );
 

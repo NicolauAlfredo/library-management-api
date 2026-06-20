@@ -3,18 +3,29 @@ import { AuthController } from "../../controllers/auth/auth.controller";
 import { authenticate } from "../../middlewares/auth/auth.middleware";
 import { authorize } from "../../middlewares/role/roleMiddleware";
 import { Role } from "../../types/role";
+import { validate } from "../../middlewares/validate.middleware";
+
+import {
+  loginSchema,
+  registerSchema,
+} from "../../validations/auth/auth.validation";
 
 const authRoutes = Router();
 
 const authController = new AuthController();
 
-authRoutes.post("/register", authController.register.bind(authController));
+authRoutes.post(
+  "/register",
+  validate(registerSchema, "body"),
+  authController.register.bind(authController),
+);
 
 authRoutes.post("/login", authController.login.bind(authController));
 
 authRoutes.get(
   "/profile",
   authenticate,
+  validate(loginSchema, "body"),
   authController.profile.bind(authController),
 );
 
