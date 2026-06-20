@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
-import { UserService } from "../../services/user/userService";
+import { UserService } from "../../services/user/user.service";
 import { parseId } from "../../utils/parseId";
-import { AuthenticatedRequest } from "../../types/authenticatedRequest";
+import { AuthenticatedRequest } from "../../types/authenticated.request";
 import { Role } from "../../types/role";
 
 interface UserParams {

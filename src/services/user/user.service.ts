@@ -1,5 +1,5 @@
 import { User } from "../../models/user/userModel";
-import { UserRepository } from "../../repositories/user/userRepository";
+import { UserRepository } from "../../repositories/user/user.repository";
 import { Role } from "../../types/role";
 
 interface UpdateUserData {

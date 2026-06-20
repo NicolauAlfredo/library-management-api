@@ -1,10 +1,10 @@
 import express from "express";
 import cors from "cors";
 import helmet from "helmet";
-import authRoutes from "./routes/auth/authRoutes";
-import bookRoutes from "./routes/book/bookRoutes";
-import loanRoutes from "./routes/loan/loanRoutes";
-import userRoutes from "./routes/user/userRoutes";
+import authRoutes from "./routes/auth/auth.routes";
+import bookRoutes from "./routes/book/book.routes";
+import loanRoutes from "./routes/loan/loan.routes";
+import userRoutes from "./routes/user/user.routes";
 import { swaggerDocument } from "./config/swagger";
 import swaggerUi from "swagger-ui-express";
 

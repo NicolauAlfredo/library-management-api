@@ -1,6 +1,6 @@
 import bcrypt from "bcryptjs";
 import jwt, { SignOptions } from "jsonwebtoken";
-import { UserRepository } from "../../repositories/user/userRepository";
+import { UserRepository } from "../../repositories/user/user.repository";
 import { Role } from "../../types/role";
 import { User } from "../../models/user/userModel";
 

@@ -1,5 +1,5 @@
 import { Book } from "../../models/book/bookModel";
-import { BookRepository } from "../../repositories/book/bookRepository";
+import { BookRepository } from "../../repositories/book/book.repository";
 
 interface CreateBookData {
   title: string;

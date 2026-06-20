@@ -1,9 +1,9 @@
 import { Router } from "express";
-import { BookController } from "../../controllers/book/bookController";
-import { authenticate } from "../../middlewares/auth/authMiddleware";
+import { BookController } from "../../controllers/book/book.controller";
+import { authenticate } from "../../middlewares/auth/auth.middleware";
 import { authorize } from "../../middlewares/role/roleMiddleware";
 import { Role } from "../../types/role";
-import { validate } from "../../middlewares/validateMiddleware";
+import { validate } from "../../middlewares/validate.middleware";
 
 import {
   bookParamsSchema,

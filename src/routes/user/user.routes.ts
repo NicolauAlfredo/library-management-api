@@ -1,6 +1,6 @@
 import { Router } from "express";
-import { UserController } from "../../controllers/user/userController";
-import { authenticate } from "../../middlewares/auth/authMiddleware";
+import { UserController } from "../../controllers/user/user.controller";
+import { authenticate } from "../../middlewares/auth/auth.middleware";
 import { authorize } from "../../middlewares/role/roleMiddleware";
 import { Role } from "../../types/role";
 

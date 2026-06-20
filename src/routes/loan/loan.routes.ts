@@ -1,6 +1,6 @@
 import { Router } from "express";
-import { LoanController } from "../../controllers/loan/loanController";
-import { authenticate } from "../../middlewares/auth/authMiddleware";
+import { LoanController } from "../../controllers/loan/loan.controller";
+import { authenticate } from "../../middlewares/auth/auth.middleware";
 import { authorize } from "../../middlewares/role/roleMiddleware";
 import { Role } from "../../types/role";
 

@@ -1,6 +1,6 @@
 import { Response } from "express";
-import { LoanService } from "../../services/loan/loanService";
-import { AuthenticatedRequest } from "../../types/authenticatedRequest";
+import { LoanService } from "../../services/loan/loan.service";
+import { AuthenticatedRequest } from "../../types/authenticated.request";
 import { parseId } from "../../utils/parseId";
 
 interface LoanParams {

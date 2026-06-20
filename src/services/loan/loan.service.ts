@@ -1,8 +1,8 @@
 import { Loan } from "../../models/loan/loanModel";
-import { BookRepository } from "../../repositories/book/bookRepository";
-import { LoanRepository } from "../../repositories/loan/loanRepository";
-import { UserRepository } from "../../repositories/user/userRepository";
-import { LoanStatus } from "../../types/loanStatus";
+import { BookRepository } from "../../repositories/book/book.repository";
+import { LoanRepository } from "../../repositories/loan/loan.repository";
+import { UserRepository } from "../../repositories/user/user.repository";
+import { LoanStatus } from "../../types/loan.status";
 
 export class LoanService {
   private loanRepository = new LoanRepository();

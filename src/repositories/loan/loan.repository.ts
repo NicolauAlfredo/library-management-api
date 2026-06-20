@@ -1,7 +1,7 @@
 import { ResultSetHeader, RowDataPacket } from "mysql2";
 import { db } from "../../config/database";
 import { Loan } from "../../models/loan/loanModel";
-import { LoanStatus } from "../../types/loanStatus";
+import { LoanStatus } from "../../types/loan.status";
 
 interface LoanRow extends RowDataPacket {
   id: number;
