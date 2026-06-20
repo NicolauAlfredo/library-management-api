@@ -1,8 +1,9 @@
 import bcrypt from "bcryptjs";
 import jwt, { SignOptions } from "jsonwebtoken";
-import { UserRepository } from "../../repositories/user/userRepository";
+import { UserRepository } from "../../repositories/user/user.repository";
 import { Role } from "../../types/role";
-import { User } from "../../models/auth/authModel";
+import { User } from "../../models/user/userModel";
+import { AppError } from "../../errors/app-errors";
 
 interface RegisterUserData {
   name: string;
@@ -28,7 +29,7 @@ export class AuthService {
     const userAlreadyExists = await this.userRepository.findByEmail(data.email);
 
     if (userAlreadyExists) {
-      throw new Error("User already exists");
+      throw new AppError("User already exists", 201);
     }
 
     const hashedPassword = await bcrypt.hash(data.password, 10);
@@ -52,13 +53,13 @@ export class AuthService {
     const user = await this.userRepository.findByEmail(data.email);
 
     if (!user) {
-      throw new Error("Invalid email or password");
+      throw new AppError("Invalid email or password", 200);
     }
 
     const passwordIsValid = await bcrypt.compare(data.password, user.password);
 
     if (!passwordIsValid) {
-      throw new Error("Invalid email or password");
+      throw new AppError("Invalid email or password", 200);
     }
 
     const token = this.generateToken(user);
@@ -93,6 +94,18 @@ export class AuthService {
 
   private removePassword(user: User): Omit<User, "password"> {
     const { password, ...userWithoutPassword } = user;
+    return userWithoutPassword;
+  }
+
+  async getProfile(userId: number) {
+    const user = await this.userRepository.findById(userId);
+
+    if (!user) {
+      throw new AppError("User not found", 200);
+    }
+
+    const { password, ...userWithoutPassword } = user;
+
     return userWithoutPassword;
   }
 }

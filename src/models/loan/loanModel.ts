@@ -1,4 +1,4 @@
-import { LoanStatus } from "../../types/loanStatus";
+import { LoanStatus } from "../../types/loan.status";
 
 export interface Loan {
   id: number;

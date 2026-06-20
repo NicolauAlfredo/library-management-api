@@ -1,9 +1,14 @@
 import express from "express";
 import cors from "cors";
 import helmet from "helmet";
-import authRoutes from "./routes/auth/authRoutes";
-import bookRoutes from "./routes/book/bookRoutes";
-import loanRoutes from "./routes/loan/loanRoutes";
+import authRoutes from "./routes/auth/auth.routes";
+import bookRoutes from "./routes/book/book.routes";
+import loanRoutes from "./routes/loan/loan.routes";
+import userRoutes from "./routes/user/user.routes";
+import { swaggerDocument } from "./config/swagger";
+import swaggerUi from "swagger-ui-express";
+import { errorMiddleware } from "./middlewares/error.middleware";
+import dashboardRoutes from "./routes/dashboard/dashboard.routes";
 
 const app = express();
 
@@ -20,6 +25,15 @@ app.use("/books", bookRoutes);
 // Loan
 app.use("/loans", loanRoutes);
 
+// User
+app.use("/users", userRoutes);
+
+// Dashboard
+app.use("/dashboard", dashboardRoutes);
+
+// Swagger
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+
 // Home Route
 app.get("/", (req, res) => {
   res.json({
@@ -27,5 +41,8 @@ app.get("/", (req, res) => {
     message: "Library Management API is running",
   });
 });
+
+// Errors
+app.use(errorMiddleware);
 
 export default app;
