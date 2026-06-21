@@ -184,6 +184,18 @@ export class UserRepository {
     return result.affectedRows > 0;
   }
 
+  async updatePassword(id: number, hashedPassword: string): Promise<void> {
+    await db.query(
+      `
+    UPDATE users
+    SET password = ?
+    WHERE id = ?
+      AND deleted_at IS NULL
+    `,
+      [hashedPassword, id],
+    );
+  }
+
   async hasActiveLoans(userId: number): Promise<boolean> {
     const [rows] = await db.query<RowDataPacket[]>(
       `

@@ -66,6 +66,33 @@ export class AuthService {
     return userWithoutPassword;
   }
 
+  async changePassword(
+    userId: number,
+    data: {
+      currentPassword: string;
+      newPassword: string;
+    },
+  ): Promise<void> {
+    const user = await this.userRepository.findById(userId);
+
+    if (!user) {
+      throw new AppError("User not found", 404);
+    }
+
+    const isCurrentPasswordValid = await bcrypt.compare(
+      data.currentPassword,
+      user.password,
+    );
+
+    if (!isCurrentPasswordValid) {
+      throw new AppError("Current password is incorrect", 400);
+    }
+
+    const hashedPassword = await bcrypt.hash(data.newPassword, 10);
+
+    await this.userRepository.updatePassword(userId, hashedPassword);
+  }
+
   async login(data: LoginUserData): Promise<AuthResponse> {
     const user = await this.userRepository.findByEmail(data.email);
 

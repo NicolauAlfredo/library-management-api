@@ -6,6 +6,7 @@ import { Role } from "../../types/role";
 import { validate } from "../../middlewares/validate.middleware";
 
 import {
+  changePasswordSchema,
   loginSchema,
   registerSchema,
   updateProfileSchema,
@@ -20,6 +21,13 @@ authRoutes.post(
   "/register",
   validate(registerSchema, "body"),
   asyncHandler(authController.register.bind(authController)),
+);
+
+authRoutes.patch(
+  "/change-password",
+  authenticate,
+  validate(changePasswordSchema, "body"),
+  asyncHandler(authController.changePassword.bind(authController)),
 );
 
 authRoutes.post(
