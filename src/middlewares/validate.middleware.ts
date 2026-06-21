@@ -23,12 +23,12 @@ export function validate(
     }
 
     if (property === "params") {
-      req.params = result.data;
+      req.params = result.data as Record<string, string>;
     }
 
-    // Do not assign req.query directly.
-    // In Express, req.query may be read-only.
-    res.locals.query = result.data;
+    if (property === "query") {
+      res.locals.query = result.data;
+    }
 
     next();
   };
