@@ -8,6 +8,7 @@ import { validate } from "../../middlewares/validate.middleware";
 import {
   loginSchema,
   registerSchema,
+  updateProfileSchema,
 } from "../../validations/auth/auth.validation";
 import { asyncHandler } from "../../utils/async-handler";
 
@@ -31,6 +32,13 @@ authRoutes.get(
   "/profile",
   authenticate,
   asyncHandler(authController.profile.bind(authController)),
+);
+
+authRoutes.patch(
+  "/profile",
+  authenticate,
+  validate(updateProfileSchema, "body"),
+  asyncHandler(authController.updateProfile.bind(authController)),
 );
 
 authRoutes.get("/admin", authenticate, authorize(Role.ADMIN), (req, res) => {

@@ -22,6 +22,11 @@ interface AuthResponse {
   token: string;
 }
 
+interface UpdateProfileData {
+  name?: string;
+  email?: string;
+}
+
 export class AuthService {
   private userRepository = new UserRepository();
 
@@ -47,6 +52,18 @@ export class AuthService {
       user: this.removePassword(user),
       token,
     };
+  }
+
+  async updateProfile(userId: number, data: UpdateProfileData) {
+    const updatedUser = await this.userRepository.update(userId, data);
+
+    if (!updatedUser) {
+      throw new AppError("User not found", 404);
+    }
+
+    const { password, ...userWithoutPassword } = updatedUser;
+
+    return userWithoutPassword;
   }
 
   async login(data: LoginUserData): Promise<AuthResponse> {

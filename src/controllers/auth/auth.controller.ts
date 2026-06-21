@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { AuthService } from "../../services/auth/auth.service";
 import { AuthenticatedRequest } from "../../types/authenticated.request";
+import { AppError } from "../../errors/app-errors";
 
 export class AuthController {
   private authService = new AuthService();
@@ -11,6 +12,21 @@ export class AuthController {
     res.status(201).json({
       success: true,
       data: result,
+    });
+  }
+
+  async updateProfile(req: AuthenticatedRequest, res: Response): Promise<void> {
+    const userId = req.user?.id;
+
+    if (!userId) {
+      throw new AppError("Authentication required", 401);
+    }
+
+    const user = await this.authService.updateProfile(userId, req.body);
+
+    res.status(200).json({
+      success: true,
+      data: user,
     });
   }
 
