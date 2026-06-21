@@ -8,6 +8,8 @@ import { AppError } from "../../errors/app-errors";
 import crypto from "crypto";
 import { PasswordResetTokenRepository } from "../../repositories/auth/password-reset-token.repository";
 
+import { EmailService } from "../email/email.service";
+
 interface RegisterUserData {
   name: string;
   email: string;
@@ -176,12 +178,14 @@ export class AuthService {
 
     const resetUrl = `${process.env.FRONTEND_URL}/reset-password?token=${token}`;
 
+    await this.emailService.sendPasswordResetEmail({
+      to: user.email,
+      resetUrl,
+    });
+
     if (process.env.NODE_ENV !== "production") {
       console.log("Password reset URL:", resetUrl);
     }
-
-    // Email feature:
-    // await this.emailService.sendPasswordResetEmail(user.email, resetUrl);
   }
 
   async resetPassword(data: {
@@ -205,4 +209,6 @@ export class AuthService {
 
     await this.passwordResetTokenRepository.markAsUsed(resetToken.id);
   }
+
+  private emailService = new EmailService();
 }
