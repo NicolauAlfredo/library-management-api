@@ -4,6 +4,12 @@ A RESTful Library Management API built with Node.js, Express, TypeScript, MySQL 
 
 The project provides authentication, role-based authorization, book management, user management, loan management, pagination, filtering, validation, Swagger documentation and administrative statistics.
 
+## API Documentation
+
+### Swagger UI
+
+![Swagger](./public/screenshots/swagger.png)
+
 ## Features
 
 ### Authentication
@@ -12,6 +18,12 @@ The project provides authentication, role-based authorization, book management, 
 * User Registration
 * User Login
 * User Profile
+* Update Profile
+* Change Password
+* Forgot Password
+* Reset Password
+* Email Password Recovery
+* Role-Based Authorization
 * Admin Protected Routes
 
 ### Users
@@ -70,6 +82,8 @@ Administrative statistics endpoint:
 * DTO Validation with Zod
 * Global Error Handler
 * Swagger Documentation
+* Password Recovery Tokens
+* Email Service (Nodemailer)
 
 ## Tech Stack
 
@@ -81,6 +95,8 @@ Administrative statistics endpoint:
 * JWT
 * Zod
 * Swagger
+* Nodemailer
+* bcryptjs
 
 ## Project Structure
 
@@ -154,7 +170,18 @@ DB_NAME=library_management_api
 JWT_SECRET=your_secret_key
 
 # Date expires
-JWT_EXPIRES_IN=1d 
+JWT_EXPIRES_IN=1d
+
+# FRONTEND URL
+FRONTEND_URL=http://localhost:5173
+
+# SMTP CONFIGURATION
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=465
+SMTP_SECURE=true
+SMTP_USER=your_email@gmail.com
+SMTP_PASS=your_app_password
+SMTP_FROM=your_email@gmail.com
 ```
 
 ## Running with Docker
@@ -233,10 +260,16 @@ Authorization: Bearer YOUR_TOKEN
 ### Authentication
 
 ```http
-POST /api/auth/register
-POST /api/auth/login
-GET  /api/auth/profile
-GET  /api/auth/admin
+POST  /api/auth/register
+POST  /api/auth/login
+POST  /api/auth/forgot-password
+POST  /api/auth/reset-password
+
+GET   /api/auth/profile
+PATCH /api/auth/profile
+PATCH /api/auth/change-password
+
+GET   /api/auth/admin
 ```
 
 ### Books
@@ -332,15 +365,29 @@ deleted_at
 
 and are automatically excluded from API queries.
 
+## Security Features
+
+* Password Hashing with bcrypt
+* JWT Authentication
+* Protected Routes
+* Role-Based Authorization
+* Single-Use Password Reset Tokens
+* Expiring Password Reset Tokens
+* Soft Delete Strategy
+* Input Validation with Zod
+  
 ## Future Improvements
 
 * Refresh Tokens
 * Unit Tests
 * Integration Tests
 * Rate Limiting
-* Logging with Pino
-* Email Notifications
-* Frontend Application with React and TypeScript
+* Request Logging with Pino
+* Role Permissions Management
+* Book Reservations
+* Fine Management System
+* Email Templates
+* CI/CD Pipeline
 
 ## License
 
