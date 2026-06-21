@@ -1,4 +1,4 @@
-import nodemailer from "nodemailer";
+import { Resend } from "resend";
 
 interface SendPasswordResetEmailData {
   to: string;
@@ -6,22 +6,14 @@ interface SendPasswordResetEmailData {
 }
 
 export class EmailService {
-  private transporter = nodemailer.createTransport({
-    host: process.env.SMTP_HOST,
-    port: Number(process.env.SMTP_PORT),
-    secure: process.env.SMTP_SECURE === "true",
-    auth: {
-      user: process.env.SMTP_USER,
-      pass: process.env.SMTP_PASS,
-    },
-  });
+  private resend = new Resend(process.env.RESEND_API_KEY);
 
   async sendPasswordResetEmail({
     to,
     resetUrl,
   }: SendPasswordResetEmailData): Promise<void> {
-    await this.transporter.sendMail({
-      from: `"Librara" <${process.env.SMTP_FROM}>`,
+    await this.resend.emails.send({
+      from: `Librara <${process.env.SMTP_FROM}>`,
       to,
       subject: "Reset your Librara password",
       html: `
