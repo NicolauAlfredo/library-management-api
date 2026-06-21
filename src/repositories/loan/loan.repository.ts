@@ -41,11 +41,12 @@ interface FindAllLoansResult {
   total: number;
 }
 
-interface LoanWithDetails extends Loan {
-  userName: string;
-  userEmail: string;
-  bookTitle: string;
-  bookAuthor: string;
+interface FindLoansByUserParams {
+  userId: number;
+  page: number;
+  limit: number;
+  status?: LoanStatus;
+  search?: string;
 }
 
 export class LoanRepository {
@@ -172,12 +173,31 @@ export class LoanRepository {
     return this.mapToLoan(loan);
   }
 
-  async findByUser(
-    userId: number,
-    page: number,
-    limit: number,
-  ): Promise<FindAllLoansResult> {
+  async findByUser(params: FindLoansByUserParams): Promise<FindAllLoansResult> {
+    const { userId, page, limit, status, search } = params;
+
     const offset = (page - 1) * limit;
+
+    const conditions: string[] = [
+      "loans.user_id = ?",
+      "users.deleted_at IS NULL",
+      "books.deleted_at IS NULL",
+    ];
+
+    const values: unknown[] = [userId];
+
+    if (status) {
+      conditions.push("loans.status = ?");
+      values.push(status);
+    }
+
+    if (search) {
+      conditions.push("(books.title LIKE ? OR books.author LIKE ?)");
+      const searchValue = `%${search}%`;
+      values.push(searchValue, searchValue);
+    }
+
+    const whereClause = `WHERE ${conditions.join(" AND ")}`;
 
     const [rows] = await db.query<LoanWithDetailsRow[]>(
       `
@@ -196,13 +216,11 @@ export class LoanRepository {
     FROM loans
     INNER JOIN users ON users.id = loans.user_id
     INNER JOIN books ON books.id = loans.book_id
-    WHERE loans.user_id = ?
-      AND users.deleted_at IS NULL
-      AND books.deleted_at IS NULL
+    ${whereClause}
     ORDER BY loans.loan_date DESC
     LIMIT ? OFFSET ?
     `,
-      [userId, limit, offset],
+      [...values, limit, offset],
     );
 
     const [countRows] = await db.query<RowDataPacket[]>(
@@ -211,11 +229,9 @@ export class LoanRepository {
     FROM loans
     INNER JOIN users ON users.id = loans.user_id
     INNER JOIN books ON books.id = loans.book_id
-    WHERE loans.user_id = ?
-      AND users.deleted_at IS NULL
-      AND books.deleted_at IS NULL
+    ${whereClause}
     `,
-      [userId],
+      values,
     );
 
     return {

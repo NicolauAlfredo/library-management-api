@@ -74,11 +74,13 @@ export class LoanController {
       throw new AppError("Authentication required", 401);
     }
 
-    const { page, limit } = res.locals.query;
+    const { page, limit, status, search } = res.locals.query;
 
     const result = await this.loanService.findMyLoans(userId, {
       page,
       limit,
+      status,
+      search,
     });
 
     res.status(200).json({

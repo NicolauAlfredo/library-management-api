@@ -21,4 +21,6 @@ export const loanQuerySchema = z.object({
 export const myLoansQuerySchema = z.object({
   page: z.coerce.number().int().positive().optional(),
   limit: z.coerce.number().int().positive().max(100).optional(),
+  status: z.nativeEnum(LoanStatus).optional(),
+  search: z.string().optional(),
 });

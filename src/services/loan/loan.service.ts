@@ -14,6 +14,21 @@ interface FindAllLoansParams {
   search?: string;
 }
 
+interface FindMyLoansParams {
+  page?: number;
+  limit?: number;
+  status?: LoanStatus;
+  search?: string;
+}
+
+interface FindLoansByUserParams {
+  userId: number;
+  page: number;
+  limit: number;
+  status?: LoanStatus;
+  search?: string;
+}
+
 export class LoanService {
   private loanRepository = new LoanRepository();
   private bookRepository = new BookRepository();
@@ -117,7 +132,7 @@ export class LoanService {
     };
   }
 
-  async findMyLoans(userId: number, params: { page?: number; limit?: number }) {
+  async findMyLoans(userId: number, params: FindMyLoansParams) {
     await this.loanRepository.updateOverdueLoans();
 
     const page = params.page && params.page > 0 ? params.page : 1;
@@ -127,11 +142,13 @@ export class LoanService {
         ? params.limit
         : 10;
 
-    const { loans, total } = await this.loanRepository.findByUser(
+    const { loans, total } = await this.loanRepository.findByUser({
       userId,
       page,
       limit,
-    );
+      status: params.status,
+      search: params.search,
+    });
 
     return {
       loans,
