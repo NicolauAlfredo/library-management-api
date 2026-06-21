@@ -30,6 +30,24 @@ export class AuthController {
     });
   }
 
+  async changePassword(
+    req: AuthenticatedRequest,
+    res: Response,
+  ): Promise<void> {
+    const userId = req.user?.id;
+
+    if (!userId) {
+      throw new AppError("Authentication required", 401);
+    }
+
+    await this.authService.changePassword(userId, req.body);
+
+    res.status(200).json({
+      success: true,
+      message: "Password changed successfully",
+    });
+  }
+
   async login(req: Request, res: Response): Promise<void> {
     const result = await this.authService.login(req.body);
 
@@ -56,6 +74,25 @@ export class AuthController {
     res.status(200).json({
       success: true,
       data: profile,
+    });
+  }
+
+  async forgotPassword(req: Request, res: Response): Promise<void> {
+    const result = await this.authService.forgotPassword(req.body.email);
+
+    res.status(200).json({
+      success: true,
+      message: "If the email exists, a password reset link has been generated.",
+      data: result,
+    });
+  }
+
+  async resetPassword(req: Request, res: Response): Promise<void> {
+    await this.authService.resetPassword(req.body);
+
+    res.status(200).json({
+      success: true,
+      message: "Password reset successfully",
     });
   }
 }

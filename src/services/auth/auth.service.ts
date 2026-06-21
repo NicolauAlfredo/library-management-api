@@ -5,6 +5,9 @@ import { Role } from "../../types/role";
 import { User } from "../../models/user/userModel";
 import { AppError } from "../../errors/app-errors";
 
+import crypto from "crypto";
+import { PasswordResetTokenRepository } from "../../repositories/auth/password-reset-token.repository";
+
 interface RegisterUserData {
   name: string;
   email: string;
@@ -66,6 +69,33 @@ export class AuthService {
     return userWithoutPassword;
   }
 
+  async changePassword(
+    userId: number,
+    data: {
+      currentPassword: string;
+      newPassword: string;
+    },
+  ): Promise<void> {
+    const user = await this.userRepository.findById(userId);
+
+    if (!user) {
+      throw new AppError("User not found", 404);
+    }
+
+    const isCurrentPasswordValid = await bcrypt.compare(
+      data.currentPassword,
+      user.password,
+    );
+
+    if (!isCurrentPasswordValid) {
+      throw new AppError("Current password is incorrect", 400);
+    }
+
+    const hashedPassword = await bcrypt.hash(data.newPassword, 10);
+
+    await this.userRepository.updatePassword(userId, hashedPassword);
+  }
+
   async login(data: LoginUserData): Promise<AuthResponse> {
     const user = await this.userRepository.findByEmail(data.email);
 
@@ -124,5 +154,52 @@ export class AuthService {
     const { password, ...userWithoutPassword } = user;
 
     return userWithoutPassword;
+  }
+
+  private passwordResetTokenRepository = new PasswordResetTokenRepository();
+
+  async forgotPassword(email: string): Promise<{ resetUrl: string | null }> {
+    const user = await this.userRepository.findByEmail(email);
+
+    if (!user) {
+      return {
+        resetUrl: null,
+      };
+    }
+
+    await this.passwordResetTokenRepository.invalidateUserTokens(user.id);
+
+    const token = crypto.randomBytes(32).toString("hex");
+
+    const expiresAt = new Date();
+    expiresAt.setMinutes(expiresAt.getMinutes() + 30);
+
+    await this.passwordResetTokenRepository.create(user.id, token, expiresAt);
+
+    return {
+      resetUrl: `http://localhost:5173/reset-password?token=${token}`,
+    };
+  }
+
+  async resetPassword(data: {
+    token: string;
+    newPassword: string;
+  }): Promise<void> {
+    const resetToken = await this.passwordResetTokenRepository.findValidToken(
+      data.token,
+    );
+
+    if (!resetToken) {
+      throw new AppError("Invalid or expired reset token", 400);
+    }
+
+    const hashedPassword = await bcrypt.hash(data.newPassword, 10);
+
+    await this.userRepository.updatePassword(
+      resetToken.user_id,
+      hashedPassword,
+    );
+
+    await this.passwordResetTokenRepository.markAsUsed(resetToken.id);
   }
 }

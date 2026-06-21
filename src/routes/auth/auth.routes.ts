@@ -6,8 +6,11 @@ import { Role } from "../../types/role";
 import { validate } from "../../middlewares/validate.middleware";
 
 import {
+  changePasswordSchema,
+  forgotPasswordSchema,
   loginSchema,
   registerSchema,
+  resetPasswordSchema,
   updateProfileSchema,
 } from "../../validations/auth/auth.validation";
 import { asyncHandler } from "../../utils/async-handler";
@@ -20,6 +23,13 @@ authRoutes.post(
   "/register",
   validate(registerSchema, "body"),
   asyncHandler(authController.register.bind(authController)),
+);
+
+authRoutes.patch(
+  "/change-password",
+  authenticate,
+  validate(changePasswordSchema, "body"),
+  asyncHandler(authController.changePassword.bind(authController)),
 );
 
 authRoutes.post(
@@ -39,6 +49,18 @@ authRoutes.patch(
   authenticate,
   validate(updateProfileSchema, "body"),
   asyncHandler(authController.updateProfile.bind(authController)),
+);
+
+authRoutes.post(
+  "/forgot-password",
+  validate(forgotPasswordSchema, "body"),
+  asyncHandler(authController.forgotPassword.bind(authController)),
+);
+
+authRoutes.post(
+  "/reset-password",
+  validate(resetPasswordSchema, "body"),
+  asyncHandler(authController.resetPassword.bind(authController)),
 );
 
 authRoutes.get("/admin", authenticate, authorize(Role.ADMIN), (req, res) => {
