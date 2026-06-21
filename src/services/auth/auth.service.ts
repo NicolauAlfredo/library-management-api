@@ -158,13 +158,11 @@ export class AuthService {
 
   private passwordResetTokenRepository = new PasswordResetTokenRepository();
 
-  async forgotPassword(email: string): Promise<{ resetUrl: string | null }> {
+  async forgotPassword(email: string): Promise<void> {
     const user = await this.userRepository.findByEmail(email);
 
     if (!user) {
-      return {
-        resetUrl: null,
-      };
+      return;
     }
 
     await this.passwordResetTokenRepository.invalidateUserTokens(user.id);
@@ -176,9 +174,14 @@ export class AuthService {
 
     await this.passwordResetTokenRepository.create(user.id, token, expiresAt);
 
-    return {
-      resetUrl: `http://localhost:5173/reset-password?token=${token}`,
-    };
+    const resetUrl = `${process.env.FRONTEND_URL}/reset-password?token=${token}`;
+
+    if (process.env.NODE_ENV !== "production") {
+      console.log("Password reset URL:", resetUrl);
+    }
+
+    // Email feature:
+    // await this.emailService.sendPasswordResetEmail(user.email, resetUrl);
   }
 
   async resetPassword(data: {
