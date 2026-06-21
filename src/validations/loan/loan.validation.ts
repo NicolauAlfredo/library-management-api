@@ -17,3 +17,8 @@ export const loanQuerySchema = z.object({
   bookId: z.coerce.number().int().positive().optional(),
   search: z.string().optional(),
 });
+
+export const myLoansQuerySchema = z.object({
+  page: z.coerce.number().int().positive().optional(),
+  limit: z.coerce.number().int().positive().max(100).optional(),
+});

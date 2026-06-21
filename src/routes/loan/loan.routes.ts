@@ -9,6 +9,7 @@ import {
   borrowBookParamsSchema,
   loanParamsSchema,
   loanQuerySchema,
+  myLoansQuerySchema,
 } from "../../validations/loan/loan.validation";
 import { asyncHandler } from "../../utils/async-handler";
 
@@ -48,6 +49,7 @@ loanRoutes.patch(
 loanRoutes.get(
   "/my",
   authenticate,
+  validate(myLoansQuerySchema, "query"),
   asyncHandler(loanController.findMyLoans.bind(loanController)),
 );
 

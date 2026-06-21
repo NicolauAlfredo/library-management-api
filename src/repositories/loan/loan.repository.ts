@@ -172,7 +172,13 @@ export class LoanRepository {
     return this.mapToLoan(loan);
   }
 
-  async findByUser(userId: number): Promise<LoanWithDetails[]> {
+  async findByUser(
+    userId: number,
+    page: number,
+    limit: number,
+  ): Promise<FindAllLoansResult> {
+    const offset = (page - 1) * limit;
+
     const [rows] = await db.query<LoanWithDetailsRow[]>(
       `
     SELECT
@@ -194,23 +200,40 @@ export class LoanRepository {
       AND users.deleted_at IS NULL
       AND books.deleted_at IS NULL
     ORDER BY loans.loan_date DESC
+    LIMIT ? OFFSET ?
+    `,
+      [userId, limit, offset],
+    );
+
+    const [countRows] = await db.query<RowDataPacket[]>(
+      `
+    SELECT COUNT(*) AS total
+    FROM loans
+    INNER JOIN users ON users.id = loans.user_id
+    INNER JOIN books ON books.id = loans.book_id
+    WHERE loans.user_id = ?
+      AND users.deleted_at IS NULL
+      AND books.deleted_at IS NULL
     `,
       [userId],
     );
 
-    return rows.map((loan) => ({
-      id: loan.id,
-      userId: loan.user_id,
-      userName: loan.user_name,
-      userEmail: loan.user_email,
-      bookId: loan.book_id,
-      bookTitle: loan.book_title,
-      bookAuthor: loan.book_author,
-      loanDate: loan.loan_date,
-      dueDate: loan.due_date,
-      returnedAt: loan.returned_at,
-      status: loan.status,
-    }));
+    return {
+      loans: rows.map((loan) => ({
+        id: loan.id,
+        userId: loan.user_id,
+        userName: loan.user_name,
+        userEmail: loan.user_email,
+        bookId: loan.book_id,
+        bookTitle: loan.book_title,
+        bookAuthor: loan.book_author,
+        loanDate: loan.loan_date,
+        dueDate: loan.due_date,
+        returnedAt: loan.returned_at,
+        status: loan.status,
+      })),
+      total: Number(countRows[0].total),
+    };
   }
 
   async returnBook(id: number): Promise<void> {

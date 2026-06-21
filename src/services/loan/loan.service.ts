@@ -117,10 +117,31 @@ export class LoanService {
     };
   }
 
-  async findMyLoans(userId: number): Promise<Loan[]> {
+  async findMyLoans(userId: number, params: { page?: number; limit?: number }) {
     await this.loanRepository.updateOverdueLoans();
 
-    return this.loanRepository.findByUser(userId);
+    const page = params.page && params.page > 0 ? params.page : 1;
+
+    const limit =
+      params.limit && params.limit > 0 && params.limit <= 100
+        ? params.limit
+        : 10;
+
+    const { loans, total } = await this.loanRepository.findByUser(
+      userId,
+      page,
+      limit,
+    );
+
+    return {
+      loans,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit),
+      },
+    };
   }
 
   private calculateDueDate(): Date {

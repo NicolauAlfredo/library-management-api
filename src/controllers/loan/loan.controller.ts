@@ -3,6 +3,7 @@ import { LoanService } from "../../services/loan/loan.service";
 import { AuthenticatedRequest } from "../../types/authenticated.request";
 import { parseId } from "../../utils/parse-id";
 import { LoanStatus } from "../../types/loan.status";
+import { AppError } from "../../errors/app-errors";
 
 export class LoanController {
   private loanService = new LoanService();
@@ -70,18 +71,20 @@ export class LoanController {
     const userId = req.user?.id;
 
     if (!userId) {
-      res.status(401).json({
-        success: false,
-        message: "Authentication required",
-      });
-      return;
+      throw new AppError("Authentication required", 401);
     }
 
-    const loans = await this.loanService.findMyLoans(userId);
+    const { page, limit } = res.locals.query;
+
+    const result = await this.loanService.findMyLoans(userId, {
+      page,
+      limit,
+    });
 
     res.status(200).json({
       success: true,
-      data: loans,
+      data: result.loans,
+      pagination: result.pagination,
     });
   }
 
