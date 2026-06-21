@@ -41,6 +41,13 @@ interface FindAllLoansResult {
   total: number;
 }
 
+interface LoanWithDetails extends Loan {
+  userName: string;
+  userEmail: string;
+  bookTitle: string;
+  bookAuthor: string;
+}
+
 export class LoanRepository {
   async create(userId: number, bookId: number, dueDate: Date): Promise<number> {
     const [result] = await db.query<ResultSetHeader>(
@@ -165,16 +172,40 @@ export class LoanRepository {
     return this.mapToLoan(loan);
   }
 
-  async findByUser(userId: number): Promise<Loan[]> {
-    const [rows] = await db.query<LoanRow[]>(
-      "SELECT * FROM loans INNER JOIN books ON books.id = loans.book_id WHERE loans.user_id = ? AND books.deleted_at IS NULL ORDER BY loan_date DESC",
+  async findByUser(userId: number): Promise<LoanWithDetails[]> {
+    const [rows] = await db.query<LoanWithDetailsRow[]>(
+      `
+    SELECT
+      loans.id,
+      loans.user_id,
+      users.name AS user_name,
+      users.email AS user_email,
+      loans.book_id,
+      books.title AS book_title,
+      books.author AS book_author,
+      loans.loan_date,
+      loans.due_date,
+      loans.returned_at,
+      loans.status
+    FROM loans
+    INNER JOIN users ON users.id = loans.user_id
+    INNER JOIN books ON books.id = loans.book_id
+    WHERE loans.user_id = ?
+      AND users.deleted_at IS NULL
+      AND books.deleted_at IS NULL
+    ORDER BY loans.loan_date DESC
+    `,
       [userId],
     );
 
     return rows.map((loan) => ({
       id: loan.id,
       userId: loan.user_id,
+      userName: loan.user_name,
+      userEmail: loan.user_email,
       bookId: loan.book_id,
+      bookTitle: loan.book_title,
+      bookAuthor: loan.book_author,
       loanDate: loan.loan_date,
       dueDate: loan.due_date,
       returnedAt: loan.returned_at,
