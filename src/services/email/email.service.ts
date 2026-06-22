@@ -6,14 +6,24 @@ interface SendPasswordResetEmailData {
 }
 
 export class EmailService {
-  private resend = new Resend(process.env.RESEND_API_KEY);
+  private getResendClient() {
+    const apiKey = process.env.RESEND_API_KEY;
+
+    if (!apiKey) {
+      throw new Error("RESEND_API_KEY is not configured");
+    }
+
+    return new Resend(apiKey);
+  }
 
   async sendPasswordResetEmail({
     to,
     resetUrl,
   }: SendPasswordResetEmailData): Promise<void> {
-    await this.resend.emails.send({
-      from: `Librara <${process.env.SMTP_FROM}>`,
+    const resend = this.getResendClient();
+
+    await resend.emails.send({
+      from: `Librara <${process.env.SMTP_FROM ?? "onboarding@resend.dev"}>`,
       to,
       subject: "Reset your Librara password",
       html: `
